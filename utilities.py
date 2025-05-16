@@ -13,3 +13,15 @@ def myScale(mobject, factor):
         mobject.set_stroke(width=mobject.stroke_width * factor)
     
     return mobject
+
+def truncate_decimal(num, digits):
+    s = str(num)
+    if '.' in s:
+        int_part, dec_part = s.split('.')
+        if len(dec_part) <= digits:
+            cleaned = s.rstrip('0').rstrip('.')
+        else:
+            truncated = '.'.join([int_part, dec_part[:digits]])
+            cleaned = truncated.rstrip('0').rstrip('.')
+        return int(cleaned) if '.' not in cleaned else float(cleaned)
+    return int(num)

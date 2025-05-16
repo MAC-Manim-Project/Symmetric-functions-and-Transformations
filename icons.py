@@ -11,11 +11,11 @@ def machineIcon(letter = "f" , _color=BLUE , letter_color=WHITE):
     
     return VGroup(center_rectangle , input_area , output_area , logo)
 
-def screenRectanlge(opacity):
-    return Rectangle(BLACK , 10 , 16 , fill_opacity = opacity)
+def screenRectanlge(opacity , width = config.frame_width , height = config.frame_height):
+    return Rectangle(BLACK , height , width , fill_opacity = opacity)
 
 
-class Scene1(Scene):
-    def construct(self):
-        # self.add(NumberPlane())
-        self.add(machineIcon())
+# class Scene1(Scene):
+#     def construct(self):
+#         # self.add(NumberPlane())
+#         self.add(machineIcon())
