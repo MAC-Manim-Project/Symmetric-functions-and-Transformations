@@ -1,6 +1,7 @@
 from manim import *
 from utilities import myScale , truncate_decimal
 from icons import screenRectanlge
+from math import sin , cos
 
 INPUT_COLOR = WHITE
 OUTPUT_COLOR = RED
@@ -140,7 +141,40 @@ class Scene2(Scene):
 
         triangle = Triangle(fill_color = RED , fill_opacity = 1 , stroke_width = 0 , stroke_color = RED).shift(DOWN * 0.5)
 
-        line1 = DashedLine(start = [0 , 0.7 , 0] , end = [0 , -1.3 , 0] , stroke_width = 2)
+        triangleCenter = triangle.get_center()[1]
+        symmetryLine = DashedLine(start = [0 , triangleCenter+1 , 0] , end = [0 , triangleCenter-1 , 0] , stroke_width = 2)
+
+        rotationSymbol1 = CurvedArrow(start_point=[0.4 , 0.65 , 0] , end_point=[-0.4 , 0.65 , 0] , tip_length = 0.1 , stroke_width = 2)
+        rotationSymbol2 = CurvedArrow(end_point=[0.4 , 0.65 , 0] , start_point=[-0.4 , 0.65 , 0] , tip_length = 0.1 , stroke_width = 2).shift(DOWN * 2)
+        rotationSymbolLabel = MathTex(r"120^{\circ}").scale(0.4).next_to(rotationSymbol2 , DOWN , buff=0.1)
+
+
+        upperGroup = VGroup()
+        lowerGroup = VGroup()
+
+        for i in range(3):
+            miniTriangle = Triangle(fill_color = RED , fill_opacity = 1 , stroke_width = 0 , stroke_color = RED).shift(DOWN * 0.2)
+            miniLine = DashedLine(start = miniTriangle.get_center()+[0,1,0] , end = miniTriangle.get_center()+[0,-1,0] , stroke_width = 2).rotate(i * (TAU/3) , about_point=miniTriangle.get_center_of_mass())
+            miniBox = Square(side_length=3 , color=YELLOW , stroke_width = 3)
+            group = VGroup(miniBox , miniTriangle , miniLine)
+            group = myScale(group , 0.6)
+            upperGroup.add(group)
+        
+        for i in range(3):
+            miniTriangle = Triangle(fill_color = RED , fill_opacity = 1 , stroke_width = 0 , stroke_color = RED).shift(DOWN * 0.2)
+            
+            miniRotationSymbol1 = CurvedArrow(start_point=[0.4 , 0.65 , 0] , end_point=[-0.4 , 0.65 , 0] , tip_length = 0.1 , stroke_width = 2).shift(UP * 0.2)
+            miniRotationSymbol2 = CurvedArrow(end_point=[0.4 , 0.65 , 0] , start_point=[-0.4 , 0.65 , 0] , tip_length = 0.1 , stroke_width = 2).shift(DOWN * 1.6)
+            miniRotationSymbolLabel = MathTex(f"{i * 120}" , r"^{\circ}").scale(0.4).next_to(miniRotationSymbol2 , DOWN , buff=0.1)
+            
+            miniBox = Square(side_length=3 , color=YELLOW , stroke_width = 3)
+            group = VGroup(miniBox , miniTriangle , miniRotationSymbol1 , miniRotationSymbol2 , miniRotationSymbolLabel)
+            group = myScale(group , 0.6)
+            lowerGroup.add(group)
+
+        upperGroup.arrange(RIGHT)
+        lowerGroup.arrange(RIGHT)
+        allGroups = VGroup(upperGroup , lowerGroup).arrange(DOWN)
 
 
         self.add(title_texts)
@@ -151,12 +185,24 @@ class Scene2(Scene):
         self.play(symmetryDescription.animate.scale(0.8).next_to(title_text_1 , DOWN))
         self.play(DrawBorderThenFill(triangle) , run_time = 1)
 
-        self.play(Create(line1) , run_time = 0.5)
+        self.play(Create(symmetryLine) , run_time = 0.5)
         self.play(triangle.animate.scale([-1 , 1 , 1]) , run_time = 0.6)
         self.wait(0.5)
         self.play(triangle.animate.scale([-1 , 1 , 1]) , run_time = 0.6)
         self.play(Circumscribe(symmetryDescription[1] ,shape=Rectangle , time_width=3 , stroke_width=1 , buff=0.05))
         
-        #Rotate the line
+        self.play(Rotate(symmetryLine , (TAU/3) , about_point=[triangle.get_center_of_mass()]))
+        self.play(Rotate(triangle , PI , [cos(PI/6) , sin(PI/6) , 0] , triangle.get_center_of_mass()))
+        self.play(Rotate(symmetryLine , (TAU/3) , about_point=[triangle.get_center_of_mass()]))
+        self.play(Rotate(triangle , PI , [cos(-PI/6) , sin(-PI/6) , 0] , triangle.get_center_of_mass()))
+        self.play(Uncreate(symmetryLine) , run_time=0.3)
+        self.play(Rotate(triangle , TAU/3 , about_point=triangle.get_center_of_mass()) , FadeIn(rotationSymbol1 , rotationSymbol2 , rotationSymbolLabel))
+
+
+        # self.play(FadeIn(allGroups) , FadeOut(triangle , rotationSymbol1 , rotationSymbol2 , rotationSymbolLabel))
+        self.play(ReplacementTransform(triangle , lowerGroup[1][1]) , ReplacementTransform(rotationSymbol1 , lowerGroup[1][2]) , ReplacementTransform(rotationSymbol2 , lowerGroup[1][3]) , TransformMatchingTex(rotationSymbolLabel , lowerGroup[1][4]) , FadeIn(lowerGroup[1][0]))
+        # self.play(AnimationGroup(*[
+
+        # ]))
 
         self.wait()
