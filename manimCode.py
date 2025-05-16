@@ -148,7 +148,6 @@ class Scene2(Scene):
         rotationSymbol2 = CurvedArrow(end_point=[0.4 , 0.65 , 0] , start_point=[-0.4 , 0.65 , 0] , tip_length = 0.1 , stroke_width = 2).shift(DOWN * 2)
         rotationSymbolLabel = MathTex(r"120^{\circ}").scale(0.4).next_to(rotationSymbol2 , DOWN , buff=0.1)
 
-
         upperGroup = VGroup()
         lowerGroup = VGroup()
 
@@ -172,9 +171,9 @@ class Scene2(Scene):
             group = myScale(group , 0.6)
             lowerGroup.add(group)
 
-        upperGroup.arrange(RIGHT)
-        lowerGroup.arrange(RIGHT)
-        allGroups = VGroup(upperGroup , lowerGroup).arrange(DOWN)
+        upperGroup.arrange(RIGHT , buff=1)
+        lowerGroup.arrange(RIGHT , buff=1)
+        allGroups = VGroup(upperGroup , lowerGroup).arrange(DOWN , buff=1).shift(DOWN * 0.5)
 
 
         self.add(title_texts)
@@ -198,11 +197,49 @@ class Scene2(Scene):
         self.play(Uncreate(symmetryLine) , run_time=0.3)
         self.play(Rotate(triangle , TAU/3 , about_point=triangle.get_center_of_mass()) , FadeIn(rotationSymbol1 , rotationSymbol2 , rotationSymbolLabel))
 
+        animations = [FadeIn(mobj) for mobj in upperGroup] 
+        animations += [FadeIn(lowerGroup[0]), FadeIn(lowerGroup[2])] 
 
-        # self.play(FadeIn(allGroups) , FadeOut(triangle , rotationSymbol1 , rotationSymbol2 , rotationSymbolLabel))
         self.play(ReplacementTransform(triangle , lowerGroup[1][1]) , ReplacementTransform(rotationSymbol1 , lowerGroup[1][2]) , ReplacementTransform(rotationSymbol2 , lowerGroup[1][3]) , TransformMatchingTex(rotationSymbolLabel , lowerGroup[1][4]) , FadeIn(lowerGroup[1][0]))
-        # self.play(AnimationGroup(*[
+        self.play(AnimationGroup(*animations , lag_ratio=0.25))
 
-        # ]))
+        for i in range(5):
+            self.play(
+                upperGroup[0][1].animate.scale([-1,1,1]),
+                Rotate(upperGroup[1][1] , PI , [cos(PI/6) , sin(PI/6) , 0] , upperGroup[1][1].get_center_of_mass()),
+                Rotate(upperGroup[2][1] , PI , [cos(-PI/6) , sin(-PI/6) , 0] , upperGroup[2][1].get_center_of_mass()),
+                Rotate(lowerGroup[1][1] , TAU/3 , about_point=lowerGroup[1][1].get_center_of_mass()),
+                Rotate(lowerGroup[2][1] , (2*TAU)/3 , about_point=lowerGroup[2][1].get_center_of_mass())
+            )
+            self.wait(0.5)
+        
+
+        functionText = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^3 - 3" , r"x" , color=OUTPUT_COLOR).scale(0.7).to_corner(UL)
+        functionText[1].set_color(INPUT_COLOR)
+        functionText[3].set_color(INPUT_COLOR)
+        functionText[5].set_color(INPUT_COLOR)
+
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        # From -10 to 10 with spacing of 1
+            y_range=[-6, 6, 1],          # From -6 to 6 with spacing of 1
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,         # Small to medium label size
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False                   # No arrow tips on axes
+        )
+        number_plane.set_stroke(opacity=0.35) 
+
+        
+
 
         self.wait()
