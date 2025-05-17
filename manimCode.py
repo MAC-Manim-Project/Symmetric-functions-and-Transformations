@@ -130,7 +130,7 @@ class Scene1(MovingCameraScene):
         self.wait()
 
 
-class Scene2(Scene):
+class Scene2(MovingCameraScene):
     def construct(self):
         title_text_1 = Text("Symmetry", color=BLUE, stroke_color=BLUE)
         title_text_2 = Text("Transformation", color=BLUE, stroke_color=BLUE)
@@ -220,8 +220,8 @@ class Scene2(Scene):
         functionText[5].set_color(INPUT_COLOR)
 
         number_plane = NumberPlane(
-            x_range=[-10, 10, 1],        # From -10 to 10 with spacing of 1
-            y_range=[-6, 6, 1],          # From -6 to 6 with spacing of 1
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
             x_length = config.frame_width,
             y_length = config.frame_height,
 
@@ -231,15 +231,54 @@ class Scene2(Scene):
             },
             axis_config={
                 "include_numbers": True,
-                "font_size": 15,         # Small to medium label size
+                "font_size": 15,
                 "line_to_number_buff" : 0.07,
                 "stroke_color": WHITE,
             },
-            tips=False                   # No arrow tips on axes
+            tips=False
         )
         number_plane.set_stroke(opacity=0.35) 
+        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-2.3553 , 2.3553] , stroke_width = 2 , color=OUTPUT_COLOR)
 
-        
+        number_plane.shift(UP * config.frame_height)
+        curve.shift(UP * config.frame_height)
+        functionText.shift(UP * config.frame_height)
+        self.add(number_plane , curve , functionText)
 
+        self.play(self.camera.frame.animate.shift(UP * config.frame_height))
+
+
+        self.wait()
+    
+class Scene3(Scene):
+    def construct(self):
+        functionText = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^3 - 3" , r"x" , color=OUTPUT_COLOR).scale(0.7).to_corner(UL)
+        functionText[1].set_color(INPUT_COLOR)
+        functionText[3].set_color(INPUT_COLOR)
+        functionText[5].set_color(INPUT_COLOR)
+
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35) 
+        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-2.3553 , 2.3553] , stroke_width = 2 , color=OUTPUT_COLOR)
+
+
+        self.add(number_plane , curve , functionText)
 
         self.wait()
