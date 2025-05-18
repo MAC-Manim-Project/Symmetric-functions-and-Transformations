@@ -238,12 +238,15 @@ class Scene2(MovingCameraScene):
             tips=False
         )
         number_plane.set_stroke(opacity=0.35) 
-        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-2.3553 , 2.3553] , stroke_width = 2 , color=OUTPUT_COLOR)
+        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-2.3553 , 2.3553] , stroke_width = 3 , color=OUTPUT_COLOR)
 
         number_plane.shift(UP * config.frame_height)
         curve.shift(UP * config.frame_height)
+        ghostCurve = curve.copy()
+        ghostCurve.set_stroke(opacity=0.3)
         functionText.shift(UP * config.frame_height)
-        self.add(number_plane , curve , functionText)
+
+        self.add(number_plane , ghostCurve , curve , functionText)
 
         self.play(self.camera.frame.animate.shift(UP * config.frame_height))
 
@@ -276,9 +279,56 @@ class Scene3(Scene):
             tips=False
         )
         number_plane.set_stroke(opacity=0.35) 
-        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-2.3553 , 2.3553] , stroke_width = 2 , color=OUTPUT_COLOR)
+        curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-10 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
+        ghostCurve = curve.copy()
+        ghostCurve.set_stroke(opacity=0.5)
+
+        screen_rectangle = screenRectanlge(0.75)
+
+        definition = Tex(r"A function is an " ,  r"odd" , r" function" , r" if the graph of that function" , r"\\ is " , r"symmetric" , r" under a " , r"$180^{\circ}$ rotation about the origin.", tex_environment="center")
+        definition[1].set_color(RED)
+        definition[5].set_color(RED)
+
+        wordEven = Tex("even").set_color(RED)
+        wordEven.move_to(definition[1]).align_to(definition[1] , DOWN)
+
+        replacement2 = Tex("reflection about the y-axis.").move_to(definition[7]).shift(LEFT * 0.2)
+        
+        endSentence1 = Tex(r"A function is an " ,  r"odd" , r" function if the graph of that function\\ is " , r"symmetric" , r" under a $180^{\circ}$ rotation about the origin.", tex_environment="center").scale(0.7)
+        endSentence1[1].set_color(RED)
+        endSentence1[3].set_color(RED)
+        
+        endSentence2 = Tex(r"A function is an " ,  r"even" , r" function if the graph of that function\\ is " , r"symmetric" , r" under a reflection about the y-axis.", tex_environment="center").scale(0.7)
+        endSentence2[1].set_color(RED)
+        endSentence2[3].set_color(RED)
+
+        VGroup(endSentence1 , endSentence2).arrange(DOWN , buff=1)
+
+        cornerText1 = Tex(r"$\bullet$ Odd Function").scale(0.55).to_corner(UL)
+        cornerText2 = Tex(r"$\bullet$ Even Function").scale(0.55).next_to(cornerText1 , DOWN).align_to(cornerText1 , LEFT)
 
 
-        self.add(number_plane , curve , functionText)
+        self.add(number_plane , ghostCurve , curve , functionText)
+        self.wait()
+
+        self.play(Rotate(curve , PI))
+        self.wait(0.5)
+        self.play(Rotate(curve , PI))
+
+        self.play(Indicate(functionText))
+        self.play(FadeIn(screen_rectangle) , Write(definition[:3]))
+        self.play(Write(definition[3:6]))
+        self.play(Write(definition[6:]))
+        self.play(Wiggle(definition[5]))
+        self.play(Circumscribe(definition[7] , fade_in=True , stroke_width=1.5))
+        self.play(ReplacementTransform(definition[1] , wordEven) , definition[0].animate.shift(LEFT * 0.05) , definition[2:4].animate.shift(RIGHT * 0.05))
+        self.play(ReplacementTransform(definition[7] , replacement2) , definition[4:7].animate.shift(RIGHT * 0.2))
+        self.play(FadeOut(screen_rectangle) , VGroup(definition , wordEven , replacement2).animate.scale(0.6).to_edge(UP))
+        self.play(Circumscribe(replacement2 , fade_in=True , stroke_width=1.5))
+        self.play(curve.animate.scale([-1,1,1])) 
+        self.play(FadeOut(functionText , number_plane , curve , ghostCurve) , ReplacementTransform(VGroup(definition , wordEven , replacement2) , VGroup(endSentence1 , endSentence2)))
+
+        self.play(TransformFromCopy(endSentence1[1] , cornerText1) , TransformFromCopy(endSentence2[1] , cornerText2) , FadeOut(endSentence1 , endSentence2) , FadeIn(number_plane))
+
 
         self.wait()
