@@ -14,6 +14,11 @@ def machineIcon(letter = "f" , _color=BLUE , letter_color=WHITE):
 def screenRectanlge(opacity , width = config.frame_width , height = config.frame_height):
     return Rectangle(BLACK , height , width , fill_opacity = opacity)
 
+def CheckMark(color = GREEN):
+    line1 = Line([-0.5,0,0] , [-0.2 , -0.5 , 0] , color=color , stroke_width = 2)
+    line2 = Line([-0.2,-0.5,0] , [0.5 , 0.4 , 0] , color=color , stroke_width = 2)
+    return VGroup(line1 , line2)
+
 
 # class Scene1(Scene):
 #     def construct(self):

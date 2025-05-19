@@ -1,6 +1,6 @@
 from manim import *
 from utilities import myScale , truncate_decimal
-from icons import screenRectanlge
+from icons import screenRectanlge , CheckMark
 from math import sin , cos
 
 INPUT_COLOR = WHITE
@@ -281,7 +281,7 @@ class Scene3(Scene):
         number_plane.set_stroke(opacity=0.35) 
         curve = number_plane.plot(lambda x : (x**3) - (3 * x) , [-10 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
         ghostCurve = curve.copy()
-        ghostCurve.set_stroke(opacity=0.5)
+        ghostCurve.set_stroke(opacity=0.3)
 
         screen_rectangle = screenRectanlge(0.75)
 
@@ -329,6 +329,73 @@ class Scene3(Scene):
         self.play(FadeOut(functionText , number_plane , curve , ghostCurve) , ReplacementTransform(VGroup(definition , wordEven , replacement2) , VGroup(endSentence1 , endSentence2)))
 
         self.play(TransformFromCopy(endSentence1[1] , cornerText1) , TransformFromCopy(endSentence2[1] , cornerText2) , FadeOut(endSentence1 , endSentence2) , FadeIn(number_plane))
+
+
+        self.wait()
+    
+
+class Scene4(Scene):
+    def construct(self):
+        cornerText1 = Tex(r"$\bullet$ Odd Function").scale(0.55).to_corner(UL)
+        cornerText2 = Tex(r"$\bullet$ Even Function").scale(0.55).next_to(cornerText1 , DOWN).align_to(cornerText1 , LEFT)
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35) 
+        cross = Cross(Dot() , RED , stroke_width=2 , scale_factor=1.5).next_to(cornerText1 , RIGHT)
+        check = CheckMark().scale(0.3).next_to(cornerText2 , RIGHT)
+
+        curve1 = number_plane.plot(lambda x : (x**2) , [-10 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
+        curve1_mini = number_plane.plot(lambda x : (x**2) , [-2.7 , 2.7] , stroke_width = 3 , color=OUTPUT_COLOR)
+        ghostCurve1 = curve1.copy()
+        ghostCurve1.set_stroke(opacity=0.3)
+        functionText1 = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^2" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText1[1].set_color(INPUT_COLOR)
+        functionText1[3].set_color(INPUT_COLOR)
+
+        curve2_1 = number_plane.plot(lambda x : -1 , [-10 , 0] , stroke_width = 3 , color=OUTPUT_COLOR)
+        curve2_2 = number_plane.plot(lambda x : 1 , [0 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
+        curve2 = VGroup(curve2_1 , curve2_2)
+
+        ghostCurve2 = curve2.copy()
+        ghostCurve2.set_stroke(opacity=0.3)
+        functionText2 = MathTex(r"f(" , r"x" , r") = \frac{\left|x\right|}{" , r"x" , r"}" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText2[1].set_color(INPUT_COLOR)
+        functionText2[2][3].set_color(INPUT_COLOR)
+        functionText2[3].set_color(INPUT_COLOR)
+        # functionText2[5].set_color(INPUT_COLOR)
+
+        self.add(number_plane , cornerText1 , cornerText2)
+        self.play(Write(functionText1) , Create(curve1 , rate_func = linear) , Create(ghostCurve1 , rate_func = linear))
+        self.play(cornerText1.animate.set_color(YELLOW))
+        self.play(Rotate(curve1 , PI , about_point=ORIGIN))
+        self.play(cornerText1.animate.set_color(RED) , FadeIn(cross))
+        self.play(Rotate(curve1 , -PI , about_point=ORIGIN))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve1.animate.scale([-1,1,1]))
+        self.play(cornerText2.animate.set_color(GREEN) , FadeIn(check))
+
+        self.play(FadeOut(ghostCurve1) , FadeIn(curve1_mini) , run_time = 0.1)
+        self.play(FadeOut(curve1))
+        self.play(TransformMatchingTex(functionText1 , functionText2) , ReplacementTransform(curve1_mini , curve2) , FadeOut(cross , check) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.play(FadeIn(ghostCurve2) , run_time = 0.1)
+
+        
 
 
         self.wait()
