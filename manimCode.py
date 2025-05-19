@@ -1,7 +1,7 @@
 from manim import *
 from utilities import myScale , truncate_decimal
 from icons import screenRectanlge , CheckMark
-from math import sin , cos
+from math import sin , cos , floor
 
 INPUT_COLOR = WHITE
 OUTPUT_COLOR = RED
@@ -358,7 +358,9 @@ class Scene4(Scene):
         )
         number_plane.set_stroke(opacity=0.35) 
         cross = Cross(Dot() , RED , stroke_width=2 , scale_factor=1.5).next_to(cornerText1 , RIGHT)
-        check = CheckMark().scale(0.3).next_to(cornerText2 , RIGHT)
+        cross2 = Cross(Dot() , RED , stroke_width=2 , scale_factor=1.5).next_to(cornerText2 , RIGHT)
+        check = CheckMark().scale(0.3).next_to(cornerText1 , RIGHT)
+        check2 = CheckMark().scale(0.3).next_to(cornerText2 , RIGHT)
 
         curve1 = number_plane.plot(lambda x : (x**2) , [-10 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
         curve1_mini = number_plane.plot(lambda x : (x**2) , [-2.7 , 2.7] , stroke_width = 3 , color=OUTPUT_COLOR)
@@ -368,8 +370,14 @@ class Scene4(Scene):
         functionText1[1].set_color(INPUT_COLOR)
         functionText1[3].set_color(INPUT_COLOR)
 
-        curve2_1 = number_plane.plot(lambda x : -1 , [-10 , 0] , stroke_width = 3 , color=OUTPUT_COLOR)
-        curve2_2 = number_plane.plot(lambda x : 1 , [0 , 10] , stroke_width = 3 , color=OUTPUT_COLOR)
+        curve2_1 = VGroup(
+            number_plane.plot(lambda x : -1 , [-10 , -0.03] , stroke_width = 3 , color=OUTPUT_COLOR),
+            Dot(number_plane.c2p(0,-1) , radius=0.035 , stroke_width=2 , fill_opacity=0 , color=OUTPUT_COLOR)
+        )
+        curve2_2 = VGroup(
+            number_plane.plot(lambda x : 1 , [0.03 , 10] , stroke_width = 3 , color=OUTPUT_COLOR),
+            Dot(number_plane.c2p(0,1) , radius=0.035 , stroke_width=2 , fill_opacity=0 , color=OUTPUT_COLOR)
+        )
         curve2 = VGroup(curve2_1 , curve2_2)
 
         ghostCurve2 = curve2.copy()
@@ -378,7 +386,45 @@ class Scene4(Scene):
         functionText2[1].set_color(INPUT_COLOR)
         functionText2[2][3].set_color(INPUT_COLOR)
         functionText2[3].set_color(INPUT_COLOR)
-        # functionText2[5].set_color(INPUT_COLOR)
+
+
+        curve3 = number_plane.plot(lambda x: ((x**4) * 0.5) - (2 * x * x) - 1 + x , x_range=[-5 , 5] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve3_mini = number_plane.plot(lambda x: ((x**4) * 0.5) - (2 * x * x) - 1 + x , x_range=[-2.8 , 2.5] , color=OUTPUT_COLOR , stroke_width = 3)
+        ghostCurve3 = curve3.copy()
+        ghostCurve3.set_stroke(opacity=0.3)
+        functionText3 = MathTex(r"f(" , r"x" , r") = " , r"\frac{x^4}{2}-2" , r"x" , r"^2 + " , r"x", r"-1" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText3[1].set_color(INPUT_COLOR)
+        functionText3[3][0].set_color(INPUT_COLOR)
+        functionText3[4].set_color(INPUT_COLOR)
+        functionText3[6].set_color(INPUT_COLOR)
+
+        curve4 = number_plane.plot(lambda x: sin(x) , x_range=[-11 , 11] , color=OUTPUT_COLOR , stroke_width = 3)
+        ghostCurve4 = curve4.copy()
+        ghostCurve4.set_stroke(opacity=0.3)
+        functionText4 = MathTex(r"f(" , r"x" , r") = \sin(" , r"x" , r")" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText4[1].set_color(INPUT_COLOR)
+        functionText4[3].set_color(INPUT_COLOR)
+
+        curve5 = number_plane.plot(lambda x: 0 , x_range=[-11 , 11] , color=OUTPUT_COLOR , stroke_width = 3)
+        ghostCurve5 = curve5.copy()
+        ghostCurve5.set_stroke(opacity=0.3)
+        functionText5 = MathTex(r"f(" , r"x" , r") = 0" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText5[1].set_color(INPUT_COLOR)
+        
+        curve6 = VGroup()
+        for i in range(-11 , 11 , 1):
+            l = Line(number_plane.c2p(i , i) , number_plane.c2p(i+1 , i) , color=OUTPUT_COLOR , stroke_width = 3)
+            s = Dot(number_plane.c2p(i , i) , radius=0.04 , fill_opacity=1 , fill_color = OUTPUT_COLOR)
+            h = Dot(number_plane.c2p(i+1 , i) , radius=0.03 , fill_opacity=1 , fill_color = BLACK , stroke_width=3 , stroke_color=OUTPUT_COLOR)
+            curve6.add(VGroup(l , s , h))
+
+        ghostCurve6 = curve6.copy()
+        ghostCurve6.set_stroke(opacity=0.3)
+        ghostCurve6.set_fill(opacity=0.3)
+        functionText6 = MathTex(r"f(" , r"x" , r") = \lfloor x \rfloor" , color=OUTPUT_COLOR).scale(0.7).to_corner(UR)
+        functionText6[1].set_color(INPUT_COLOR)
+        functionText6[2][3].set_color(INPUT_COLOR)
+
 
         self.add(number_plane , cornerText1 , cornerText2)
         self.play(Write(functionText1) , Create(curve1 , rate_func = linear) , Create(ghostCurve1 , rate_func = linear))
@@ -388,14 +434,70 @@ class Scene4(Scene):
         self.play(Rotate(curve1 , -PI , about_point=ORIGIN))
         self.play(cornerText2.animate.set_color(YELLOW))
         self.play(curve1.animate.scale([-1,1,1]))
-        self.play(cornerText2.animate.set_color(GREEN) , FadeIn(check))
+        self.play(cornerText2.animate.set_color(GREEN) , FadeIn(check2))
 
         self.play(FadeOut(ghostCurve1) , FadeIn(curve1_mini) , run_time = 0.1)
         self.play(FadeOut(curve1))
-        self.play(TransformMatchingTex(functionText1 , functionText2) , ReplacementTransform(curve1_mini , curve2) , FadeOut(cross , check) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.play(TransformMatchingTex(functionText1 , functionText2) , ReplacementTransform(curve1_mini , VGroup(curve2_1[0] , curve2_2[0])) , FadeIn(curve2_1[1] , curve2_2[1]) , FadeOut(cross , check2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
         self.play(FadeIn(ghostCurve2) , run_time = 0.1)
 
+        self.play(cornerText1.animate.set_color(YELLOW) , Rotate(curve2 , PI , about_point=ORIGIN))
         
+        self.play(cornerText1.animate.set_color(GREEN) , FadeIn(check))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve2.animate.scale([-1,1,1]))
+        self.play(cornerText2.animate.set_color(RED) , FadeIn(cross2))
+        self.play(curve2.animate.scale([-1,1,1]))
+        self.play(FadeOut(ghostCurve2) , run_time = 0.1)
+
+        self.play(TransformMatchingTex(functionText2 , functionText3) , FadeTransform(curve2 , curve3_mini) , FadeOut(cross2 , check) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.play(FadeIn(ghostCurve3 , curve3) , run_time = 0.1)
+        self.play(FadeOut(curve3_mini))
+        self.play(cornerText1.animate.set_color(YELLOW))
+        self.play(Rotate(curve3 , PI , about_point=ORIGIN))
+
+        self.play(cornerText1.animate.set_color(RED) , FadeIn(cross))
+        self.play(Rotate(curve3 , -PI , about_point=ORIGIN))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve3.animate.scale([-1 , 1 , 1]))
+        self.play(cornerText2.animate.set_color(RED) , FadeIn(cross2))
+        self.play(curve3.animate.scale([-1 , 1 , 1]))
+
+        self.play(FadeOut(ghostCurve3) , run_time = 0.1)
+        self.play(TransformMatchingTex(functionText3 , functionText4) , ReplacementTransform(curve3 , curve4) , FadeOut(cross , cross2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.add(ghostCurve4)
+        self.play(cornerText1.animate.set_color(YELLOW))
+        self.play(Rotate(curve4 , PI , about_point=ORIGIN))
+        self.play(cornerText1.animate.set_color(GREEN) , FadeIn(check))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve4.animate.scale([-1,1,1]))
+        self.play(cornerText2.animate.set_color(RED) , FadeIn(cross2))
+        self.play(curve4.animate.scale([-1,1,1]))
+
+        self.play(FadeOut(ghostCurve4) , run_time = 0.1)
+        self.play(TransformMatchingTex(functionText4 , functionText5) , ReplacementTransform(curve4 , curve5) , FadeOut(check , cross2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.add(ghostCurve5)
+        self.play(cornerText1.animate.set_color(YELLOW))
+        self.play(Rotate(curve5 , PI , about_point=ORIGIN))
+        self.play(cornerText1.animate.set_color(GREEN) , FadeIn(check))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve5.animate.scale([-1,1,1]))
+        self.play(cornerText2.animate.set_color(GREEN) , FadeIn(check2))
+        
+
+        self.play(FadeOut(ghostCurve5) , run_time = 0.1)
+        self.play(TransformMatchingTex(functionText5 , functionText6) , FadeTransform(curve5 , curve6) , FadeOut(check , check2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.add(ghostCurve6)
+        self.play(cornerText1.animate.set_color(YELLOW))
+        self.play(Rotate(curve6 , PI , about_point=ORIGIN))
+        self.play(cornerText1.animate.set_color(RED) , FadeIn(cross))
+        self.play(Rotate(curve6 , -PI , about_point=ORIGIN))
+        self.play(cornerText2.animate.set_color(YELLOW))
+        self.play(curve6.animate.scale([-1,1,1]))
+        self.play(cornerText2.animate.set_color(RED) , FadeIn(cross2))
+        self.play(curve6.animate.scale([-1,1,1]))
+        
+
 
 
         self.wait()
