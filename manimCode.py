@@ -589,11 +589,11 @@ class Scene5(Scene):
 
         number_plane2 = number_plane1.copy()
 
-        curve1 = number_plane1.plot(lambda x : (x**3) - (3*x) , x_range=[-2.61,2.61] , stroke_width = 2 , color=OUTPUT_COLOR)
+        curve1 = number_plane1.plot(lambda x : (x**3) - (3*x) , x_range=[-2.35,2.35] , stroke_width = 2 , color=OUTPUT_COLOR)
         ghostCurve1 = curve1.copy()
         ghostCurve1.set_stroke(opacity=0.3)
 
-        curve2 = number_plane2.plot(lambda x : (x**4) - (2*x*2) - 1 , x_range=[-2.11,2.11] , stroke_width = 2 , color=OUTPUT_COLOR)
+        curve2 = number_plane2.plot(lambda x : (x**4) - (2*x*x) - 1 , x_range=[-1.95,1.95] , stroke_width = 2 , color=OUTPUT_COLOR)
         ghostCurve2 = curve2.copy()
         ghostCurve2.set_stroke(opacity = 0.3)
 
@@ -601,7 +601,15 @@ class Scene5(Scene):
         bottomGraph = VGroup(number_plane2 , curve2 , ghostCurve2)
 
         VGroup(topGraph , bottomGraph).arrange(DOWN , buff=0).shift(LEFT * config.frame_width/4)
-        
+        topGraph.scale(0.9)
+        bottomGraph.scale(0.9)
+
+        box1 = Rectangle(height=topGraph.height , width=topGraph.width , stroke_color = YELLOW , stroke_opacity = 1 , stroke_width = 3 , fill_opacity = 0).move_to(topGraph)
+        box2 = Rectangle(height=bottomGraph.height , width=bottomGraph.width , stroke_color = YELLOW , stroke_opacity = 1 , stroke_width = 3  , fill_opacity = 0).move_to(bottomGraph)
+        topGraph.add(box1)
+        bottomGraph.add(box2)
+
+        arrow = DoubleArrow(start = ORIGIN , end = RIGHT*2 , tip_length=0.2 , stroke_width = 3).shift(LEFT * 0.2)
 
 
         self.add(exampleFunction)
@@ -661,7 +669,15 @@ class Scene5(Scene):
         self.play(Write(evenIf[2:]))
 
         self.play(endtexts.animate.scale(0.5).shift(RIGHT * config.frame_width/4))
-        self.play(FadeIn(number_plane1 , curve1 , ghostCurve1 , number_plane2 , curve2 , ghostCurve2))
+        self.play(FadeIn(number_plane1 , curve1 , ghostCurve1 , number_plane2 , curve2 , ghostCurve2 , box1 , box2))
+        self.wait(0.5)
+        self.play(Rotate(curve1 , PI) , curve2.animate.scale([-1,1,1]))
+        self.wait(0.5)
+        self.play(Rotate(curve1 , -PI) , curve2.animate.scale([-1,1,1]))
+        self.wait(0.5)
+        self.play(Rotate(curve1 , PI) , curve2.animate.scale([-1,1,1]) , FadeIn(arrow))
+        self.wait(0.5)
+        self.play(Rotate(curve1 , -PI) , curve2.animate.scale([-1,1,1]))
 
 
         self.wait()
