@@ -25,3 +25,9 @@ def truncate_decimal(num, digits):
             cleaned = truncated.rstrip('0').rstrip('.')
         return int(cleaned) if '.' not in cleaned else float(cleaned)
     return int(num)
+
+from manim import *
+
+def TransformMatchingFromCopy(source, target, **kwargs):
+    temp = source.copy()
+    return TransformMatchingShapes(temp, target, **kwargs)

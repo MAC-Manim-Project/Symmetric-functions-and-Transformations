@@ -1,5 +1,5 @@
 from manim import *
-from utilities import myScale , truncate_decimal
+from utilities import myScale , truncate_decimal , TransformMatchingFromCopy
 from icons import screenRectanlge , CheckMark
 from math import sin , cos , floor
 
@@ -498,6 +498,170 @@ class Scene4(Scene):
         self.play(curve6.animate.scale([-1,1,1]))
         
 
+        text = Tex("Example: ")
+        equation = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^3 - " , r"x" , color=OUTPUT_COLOR)
+        equation[1].set_color(INPUT_COLOR)
+        equation[3].set_color(INPUT_COLOR)
+        equation[5].set_color(INPUT_COLOR)
+        endtext = VGroup(text , equation).arrange(RIGHT)
+
+        self.play(FadeOut(cornerText1 , cornerText2 , functionText6 , curve6 , ghostCurve6 , cross , cross2 , number_plane) , Write(endtext))
+
+        self.wait()
+
+
+class Scene5(Scene):
+    def construct(self):
+        text = Tex("Example: ")
+        equation = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^3" , r"-" , r"x" , color=OUTPUT_COLOR)
+        equation[1].set_color(INPUT_COLOR)
+        equation[3].set_color(INPUT_COLOR)
+        equation[6].set_color(INPUT_COLOR)
+        exampleFunction = VGroup(text , equation).arrange(RIGHT)
+
+
+        equation2 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"(" , r"-x" , r")^3" ,  r"-" , r"(" , r"-x" , r")", color=OUTPUT_COLOR).scale(0.9).shift(UP * 0.4)
+        equation2[1].set_color(INPUT_COLOR)
+        equation2[5].set_color(INPUT_COLOR)
+        equation2[9].set_color(INPUT_COLOR)
+        
+        equation3 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"-(" , r"x" , r")^3" ,  r"+" , r"x", color=OUTPUT_COLOR).scale(0.9).next_to(equation2 , DOWN).align_to(equation2 , LEFT)
+        equation3[1].set_color(INPUT_COLOR)
+        equation3[5].set_color(INPUT_COLOR)
+        equation3[8].set_color(INPUT_COLOR)
+        
+        equation4 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"-(" , r"x" , r"^3" ,  r"-" , r"x" , r")", color=OUTPUT_COLOR).scale(0.9).next_to(equation3 , DOWN).align_to(equation2 , LEFT)
+        equation4[1].set_color(INPUT_COLOR)
+        equation4[5].set_color(INPUT_COLOR)
+        equation4[8].set_color(INPUT_COLOR)
+        
+        equation5 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"-f(" , r"x" , r")" , color=OUTPUT_COLOR).scale(0.9).next_to(equation4 , DOWN).align_to(equation2 , LEFT)
+        equation5[1].set_color(INPUT_COLOR)
+        equation5[5].set_color(INPUT_COLOR)
+        
+        equation6 = MathTex(r"f(" , r"x" , r")" , r"=" , r"x" , r"^4 - 2" , r"x" , r"^2 + 1" , color=OUTPUT_COLOR).move_to(equation).shift(UP * 2).align_to(equation , LEFT)
+        equation6[1].set_color(INPUT_COLOR)
+        equation6[4].set_color(INPUT_COLOR)
+        equation6[6].set_color(INPUT_COLOR)
+        
+        equation7 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"(" , r"-x" , r")^4" , r"- 2(" , r"-x" , r")^2 " , r"+ 1" , color=OUTPUT_COLOR).scale(0.9).move_to(equation2).align_to(equation2 , LEFT)
+        equation7[1].set_color(INPUT_COLOR)
+        equation7[5].set_color(INPUT_COLOR)
+        equation7[8].set_color(INPUT_COLOR)
+
+        equation8 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"x" , r"^4" , r"- 2" , r"x" , r"^2" , r"+ 1" , color=OUTPUT_COLOR).scale(0.9).move_to(equation3).align_to(equation3 , LEFT)
+        equation8[1].set_color(INPUT_COLOR)
+        equation8[4].set_color(INPUT_COLOR)
+        equation8[7].set_color(INPUT_COLOR)
+
+        equation9 = MathTex(r"f(" , r"-x" , r")" , r"=" , r"f(" , r"x" , r")" , color=OUTPUT_COLOR).scale(0.9).move_to(equation4).align_to(equation4 , LEFT)
+        equation9[1].set_color(INPUT_COLOR)
+        equation9[5].set_color(INPUT_COLOR)
+
+        oddIf = Tex("Odd Function" , " if: " , r"$f(-x) = -f(x)$")
+        evenIf = Tex("Even Function" , " if: " , r"$f(-x) = f(x)$")
+
+        oddIf[0].set_color(YELLOW)
+        evenIf[0].set_color(YELLOW)
+
+        endtexts = VGroup(oddIf , evenIf).arrange(DOWN)
+
+        number_plane1 = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane1.set_stroke(opacity=0.35) 
+        number_plane1.scale(0.5)
+
+        number_plane2 = number_plane1.copy()
+
+        curve1 = number_plane1.plot(lambda x : (x**3) - (3*x) , x_range=[-2.61,2.61] , stroke_width = 2 , color=OUTPUT_COLOR)
+        ghostCurve1 = curve1.copy()
+        ghostCurve1.set_stroke(opacity=0.3)
+
+        curve2 = number_plane2.plot(lambda x : (x**4) - (2*x*2) - 1 , x_range=[-2.11,2.11] , stroke_width = 2 , color=OUTPUT_COLOR)
+        ghostCurve2 = curve2.copy()
+        ghostCurve2.set_stroke(opacity = 0.3)
+
+        topGraph = VGroup(number_plane1 , curve1 , ghostCurve1)
+        bottomGraph = VGroup(number_plane2 , curve2 , ghostCurve2)
+
+        VGroup(topGraph , bottomGraph).arrange(DOWN , buff=0).shift(LEFT * config.frame_width/4)
+        
+
+
+        self.add(exampleFunction)
+        self.wait(0.5)
+        self.play(exampleFunction.animate.shift(UP * 2) , Write(equation2[0:3]))
+        self.wait(0.5)
+        self.play(AnimationGroup(*[
+            Write(equation2[3]),
+            TransformMatchingFromCopy(equation[3:5] , equation2[4:7]),
+            Write(equation2[7]),
+            TransformMatchingFromCopy(equation[6] , equation2[8:11])
+        ] , lag_ratio=0.3))
+
+        self.play(AnimationGroup(*[
+            Write(equation3[3]),
+            TransformMatchingFromCopy(equation2[4:7] , equation3[4:7]),
+            TransformMatchingFromCopy(equation2[8:11] , equation3[7:9])
+        ] , lag_ratio=0.3))
+
+        transformAnimations = [
+            TransformMatchingFromCopy(equation3[5] , equation4[5]),
+            TransformMatchingFromCopy(equation3[6][1] , equation4[6]),
+            TransformMatchingFromCopy(equation3[8] , equation4[8]),
+            Write(equation4[7]),
+            TransformMatchingFromCopy(equation3[4][0] , equation4[4][0]),
+            TransformMatchingFromCopy(equation3[4][1] , equation4[4][1]),
+            TransformMatchingFromCopy(equation3[6][0] , equation4[9])
+        ]
+
+        self.play(AnimationGroup(*[
+            Write(equation4[3]),
+            AnimationGroup(*transformAnimations , lag_ratio=0)
+        ] , lag_ratio=0.3))
+
+        self.play(Write(equation5[3:]))
+        self.play(Circumscribe(equation , stroke_width=2))
+
+        self.play(Unwrite(equation[3:]) , Unwrite(equation2) , Unwrite(equation3[3:]) , Unwrite(equation4[3:]) , Unwrite(equation5[3:]) , run_time = 1)
+
+        self.play(Write(equation6[4:]))
+        self.play(Write(equation7))
+        self.play(
+            TransformMatchingFromCopy(equation7[3] , equation8[3]),
+            TransformMatchingFromCopy(equation7[4:7] , equation8[4:6]),
+            TransformMatchingFromCopy(equation7[7:10] , equation8[6:9]),
+            TransformMatchingFromCopy(equation7[10] , equation8[9])
+        )
+
+        self.play(Write(equation9[3:]))
+        self.play(Circumscribe(equation6 , stroke_width=2))
+
+        self.play(*[FadeOut(mob)for mob in self.mobjects])
+
+        self.play(Write(oddIf[0:2]))
+        self.play(Write(oddIf[2:]))
+        self.play(Write(evenIf[0:2]))
+        self.play(Write(evenIf[2:]))
+
+        self.play(endtexts.animate.scale(0.5).shift(RIGHT * config.frame_width/4))
+        self.play(FadeIn(number_plane1 , curve1 , ghostCurve1 , number_plane2 , curve2 , ghostCurve2))
 
 
         self.wait()
