@@ -510,7 +510,7 @@ class Scene4(Scene):
         self.wait()
 
 
-class Scene5(Scene):
+class Scene5(MovingCameraScene):
     def construct(self):
         text = Tex("Example: ")
         equation = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^3" , r"-" , r"x" , color=OUTPUT_COLOR)
@@ -668,8 +668,7 @@ class Scene5(Scene):
         self.play(Write(evenIf[0:2]))
         self.play(Write(evenIf[2:]))
 
-        self.play(endtexts.animate.scale(0.5).shift(RIGHT * config.frame_width/4))
-        self.play(FadeIn(number_plane1 , curve1 , ghostCurve1 , number_plane2 , curve2 , ghostCurve2 , box1 , box2))
+        self.play(endtexts.animate.scale(0.5).shift(RIGHT * config.frame_width/4) , FadeIn(number_plane1 , curve1 , ghostCurve1 , number_plane2 , curve2 , ghostCurve2 , box1 , box2))
         self.wait(0.5)
         self.play(Rotate(curve1 , PI) , curve2.animate.scale([-1,1,1]))
         self.wait(0.5)
@@ -679,5 +678,90 @@ class Scene5(Scene):
         self.wait(0.5)
         self.play(Rotate(curve1 , -PI) , curve2.animate.scale([-1,1,1]))
 
+
+        title_text_1 = Text("Symmetry", color=BLUE, stroke_color=BLUE)
+        title_text_2 = Text("Transformation", color=BLUE, stroke_color=BLUE)
+        title_texts = VGroup(title_text_1, title_text_2).arrange(RIGHT, buff=3).scale(0.585).shift(RIGHT * 0.2).shift(DOWN * config.frame_height)
+        title_text_1.scale(1.4).set_color(YELLOW)
+
+        functionText = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^2" , color=OUTPUT_COLOR).scale(0.8).to_corner(UL)
+        functionText[1].set_color(INPUT_COLOR)
+        functionText[3].set_color(INPUT_COLOR)
+
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35) 
+        functionText.shift(DOWN * config.frame_height)
+        number_plane.shift(DOWN * config.frame_height)
+
+
+        self.add(title_texts)
+        self.play(self.camera.frame.animate.shift(DOWN * config.frame_height))
+        self.play(title_text_1.animate.scale(1/1.4).set_color(BLUE) , title_text_2.animate.scale(1.4).set_color(YELLOW))
+        self.play(FadeOut(title_texts) , Create(number_plane) , Write(functionText))
+
+        self.wait()
+
+class Scene6(Scene):
+    def construct(self):
+        functionText = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^2" , r"-2" , color=OUTPUT_COLOR).scale(0.8).to_corner(UL)
+        functionText[1].set_color(INPUT_COLOR)
+        functionText[3].set_color(INPUT_COLOR)
+
+        modification1 = MathTex(r"f(" , r"x" , r") =" , r"(" , r"x" , r"+1)^2" , r"-2" , color=OUTPUT_COLOR).scale(0.8).to_corner(UL)
+        modification1[1].set_color(INPUT_COLOR)
+        modification1[4].set_color(INPUT_COLOR)
+
+        modification2 = MathTex(r"f(" , r"x" , r") =" , r"-" , r"(" , r"x" , r"+1)^2" , r"-2" , color=OUTPUT_COLOR).scale(0.8).to_corner(UL)
+
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35) 
+
+
+        curveMini = number_plane.plot(lambda x : x*x , [-2.8 , 2.8] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve = number_plane.plot(lambda x : x*x , [-5 , 5] , color=OUTPUT_COLOR , stroke_width = 3)
+        
+
+        self.add(functionText[:5] , number_plane)
+        self.wait(0.3)
+        self.play(Create(curveMini))
+        self.add(curve)
+        self.play(FadeOut(curveMini) , run_time = 0.1)
+        self.play(FadeIn(functionText[5] , shift=DOWN * 0.1) , curve.animate.shift(DOWN * (number_plane.c2p(0,2)[1])))
+        self.play(TransformMatchingShapes(functionText[3:5] , modification1[3:6]) , functionText[5].animate.move_to(modification1[6]) , curve.animate.shift(LEFT * number_plane.c2p(1,0)[0]))
+        self.play(Write(modification2[3]) , modification1[3:6].animate.move_to(modification2[4:7]) , functionText[5].animate.move_to(modification2[7]) , Rotate(curve , PI , RIGHT , number_plane.c2p(-1,-2)))
 
         self.wait()
