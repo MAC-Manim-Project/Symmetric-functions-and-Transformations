@@ -31,3 +31,14 @@ from manim import *
 def TransformMatchingFromCopy(source, target, **kwargs):
     temp = source.copy()
     return TransformMatchingShapes(temp, target, **kwargs)
+
+
+
+class FadeInAndOutDirectional(Succession):
+    def __init__(self, mobject, shift , **kwargs):
+        super().__init__(
+            FadeIn(mobject, shift=shift, rate_func=rush_into),
+            FadeOut(mobject, shift=shift, rate_func=rush_from),
+            **kwargs
+        )
+

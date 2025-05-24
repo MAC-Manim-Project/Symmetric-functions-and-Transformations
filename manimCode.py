@@ -1,5 +1,5 @@
 from manim import *
-from utilities import myScale , truncate_decimal , TransformMatchingFromCopy
+from utilities import myScale , truncate_decimal , TransformMatchingFromCopy , FadeInAndOutDirectional
 from icons import screenRectanlge , CheckMark
 from math import sin , cos , floor
 
@@ -729,6 +729,12 @@ class Scene6(Scene):
         modification1[4].set_color(INPUT_COLOR)
 
         modification2 = MathTex(r"f(" , r"x" , r") =" , r"-" , r"(" , r"x" , r"+1)^2" , r"-2" , color=OUTPUT_COLOR).scale(0.8).to_corner(UL)
+        modification2[1].set_color(INPUT_COLOR)
+        modification2[5].set_color(INPUT_COLOR)
+
+        modification3 = MathTex(r"f(" , r"x" , r") =" , r"x" , color=OUTPUT_COLOR).scale(0.8).move_to(modification2).align_to(modification2 , LEFT)
+        modification3[1].set_color(INPUT_COLOR)
+        modification3[3].set_color(INPUT_COLOR)
 
         number_plane = NumberPlane(
             x_range=[-10, 10, 1],        
@@ -753,7 +759,36 @@ class Scene6(Scene):
 
         curveMini = number_plane.plot(lambda x : x*x , [-2.8 , 2.8] , color=OUTPUT_COLOR , stroke_width = 3)
         curve = number_plane.plot(lambda x : x*x , [-5 , 5] , color=OUTPUT_COLOR , stroke_width = 3)
+
+        t_value = ValueTracker(-PI/2)
+
+        def point(t):
+            x = (sin(t) + 1) * cos(t) 
+            y = (sin(t) + 1) * sin(t) * (1-0.3 * sin(t))
+            return [x,-y]
         
+        def curveDrawer(t):            
+            c = number_plane.plot(lambda x : x*x , [-5 , 5] , color=OUTPUT_COLOR , stroke_width = 3).shift(number_plane.c2p(point(t)[0] , point(t)[1]))
+            return c
+
+        redrawingCurve = always_redraw(lambda : curveDrawer(t_value.get_value()))
+
+        doubleArrowCross = always_redraw(lambda :  VGroup(
+            DoubleArrow(start = UP , end = DOWN , tip_length = 0.2),
+            DoubleArrow(start = LEFT , end = RIGHT , tip_length = 0.2)
+        ).shift(UP).shift(number_plane.c2p( point(t_value.get_value())[0] , point(t_value.get_value())[1] )))
+
+        arrow1 = Arrow(start = ORIGIN , end = RIGHT , buff=0.2).scale(1.2).shift(UP + RIGHT*0.2)
+        arrow2 = Arrow(start = ORIGIN , end = LEFT , buff=0.2).scale(1.2).shift(UP + LEFT*0.2)
+
+        arrow3 = Arrow(start = ORIGIN , end = RIGHT , buff=0.2).scale([-1.2 , 1.2 , 1.2]).shift(UP + RIGHT*0.2)
+        arrow4 = Arrow(start = ORIGIN , end = LEFT , buff=0.2).scale([-1.2 , 1.2 , 1.2]).shift(UP + LEFT*0.2)
+
+        arrow5 = DoubleArrow(start = RIGHT*0.5 , end = LEFT * 0.5 , tip_length = 0.4 , stroke_width = 2).shift(UP)
+
+        transformationText1 = Tex("Translation / Shifting").shift(UP * 1.5).align_to(functionText , LEFT)
+        transformationText2 = Tex("Stretching or Compressing").scale(0.9).shift(UP * 1.5).align_to(functionText , LEFT)
+        transformationText3 = Tex("Reflecting").shift(UP * 1.5).align_to(functionText , LEFT)
 
         self.add(functionText[:5] , number_plane)
         self.wait(0.3)
@@ -763,5 +798,95 @@ class Scene6(Scene):
         self.play(FadeIn(functionText[5] , shift=DOWN * 0.1) , curve.animate.shift(DOWN * (number_plane.c2p(0,2)[1])))
         self.play(TransformMatchingShapes(functionText[3:5] , modification1[3:6]) , functionText[5].animate.move_to(modification1[6]) , curve.animate.shift(LEFT * number_plane.c2p(1,0)[0]))
         self.play(Write(modification2[3]) , modification1[3:6].animate.move_to(modification2[4:7]) , functionText[5].animate.move_to(modification2[7]) , Rotate(curve , PI , RIGHT , number_plane.c2p(-1,-2)))
+        self.play(curve.animate.scale([1,-1,1]).shift(number_plane.c2p(1,27)) , FadeOut(modification2[3] , functionText[5] , modification1[3] , modification1[5]) , modification1[4].animate.move_to(modification3[3]))
+        self.play(FadeIn(doubleArrowCross) , Write(transformationText1) , run_time = 1)
+        self.add(redrawingCurve)
+        self.play(FadeOut(curve) , run_time = 0.1)
+        self.play(t_value.animate.set_value((3 * PI)/2) , rate_func = linear , run_time = 2)
+        self.play(TransformMatchingTex(transformationText1 , transformationText2) , FadeOut(doubleArrowCross))
+        
+        self.add(curve)
+        self.play(FadeOut(redrawingCurve) , run_time = 0.1)
+        self.play(FadeInAndOutDirectional(arrow1 , RIGHT * 0.3) , FadeInAndOutDirectional(arrow2 , LEFT * 0.3), curve.animate.scale([1.4,1,1]) , run_time = 1)
+        self.play(FadeInAndOutDirectional(arrow3 , LEFT * 0.3) , FadeInAndOutDirectional(arrow4 , RIGHT * 0.3), curve.animate.scale([0.4,1,1]) , run_time = 1)
+        self.play(TransformMatchingTex(transformationText2 , transformationText3))
+        self.play(curve.animate.scale([-1,1,1]) , FadeInAndOutDirectional(arrow5 , ORIGIN , run_time = 1))
 
+        self.play(FadeOut(curve , functionText[:3] , modification1[4] , transformationText3))
+
+        functionText2 = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^{\frac{2}{3}}" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionText2[1].set_color(INPUT_COLOR)
+        functionText2[3].set_color(INPUT_COLOR)
+
+        curve2_1 = number_plane.plot(lambda x: pow(x*x , 1/3) , [-10,0] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve2_2 = number_plane.plot(lambda x: pow(x*x , 1/3) , [0,10] , color=OUTPUT_COLOR , stroke_width = 3)
+
+        self.play(Write(functionText2) , Create(VGroup(curve2_1 , curve2_2)))
+
+        self.wait()
+
+class Scene7(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35) 
+
+        functionText = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^{\frac{2}{3}}" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionText[1].set_color(INPUT_COLOR)
+        functionText[3].set_color(INPUT_COLOR)
+
+        curve_p1 = number_plane.plot(lambda x: pow(x*x , 1/3) , [-10,0] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve_p2 = number_plane.plot(lambda x: pow(x*x , 1/3) , [0,10] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve = VGroup(curve_p1 , curve_p2)
+
+        x_value = ValueTracker(3)
+        pointOnCurve = always_redraw(lambda : Dot(number_plane.c2p(x_value.get_value() , pow(x_value.get_value()**2 , 1/3)) , radius = 0.05 , color=YELLOW) )
+        
+        def xlinesGiver(x):
+            lines = number_plane.get_lines_to_point(number_plane.c2p(x , pow(x**2 , 1/3)))[0]
+            lines.set_color(INPUT_COLOR)
+
+            x_text = MathTex(r"x" , color=INPUT_COLOR).scale(0.5).next_to(lines , UP , buff=0.1)
+            
+            return VGroup(lines , x_text)
+        xLine = always_redraw(lambda : xlinesGiver(x_value.get_value()))
+        
+        def ylinesGiver(x):
+            lines = number_plane.get_lines_to_point(number_plane.c2p(x , pow(x**2 , 1/3)))[1]
+            lines.set_color(OUTPUT_COLOR)
+
+            fx_text = MathTex(r"f(" , r"x" , r")" , color=OUTPUT_COLOR).scale(0.5).rotate(PI/2).next_to(lines , RIGHT , buff=0.1)
+            fx_text[1].set_color(INPUT_COLOR)
+
+            return VGroup(lines , fx_text)
+        yLine = always_redraw(lambda : ylinesGiver(x_value.get_value()))
+
+        hLine1 = Line(start=number_plane.c2p(0,0) , end = number_plane.c2p(-8,0) , color=WHITE , stroke_width = 2)
+        hLine2 = Line(start=number_plane.c2p(0,4) , end = number_plane.c2p(-8,4) , color=WHITE , stroke_width = 2)
+
+        self.add(number_plane , functionText , curve)
+
+        self.wait(0.5)
+        self.play(FadeIn(pointOnCurve) , FocusOn(pointOnCurve , run_time = 0.8))
+        self.play(FadeIn(xLine))
+        self.play(FadeIn(yLine))
+        self.play(x_value.animate.set_value(8))
+        self.play(x_value.animate.set_value(-8) , run_time = 2)
+        self.play(FadeOut(xLine , yLine , pointOnCurve))
         self.wait()
