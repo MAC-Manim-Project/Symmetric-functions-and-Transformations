@@ -890,3 +890,46 @@ class Scene7(Scene):
         self.play(x_value.animate.set_value(-8) , run_time = 2)
         self.play(FadeOut(xLine , yLine , pointOnCurve))
         self.wait()
+
+class Scene8(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+
+        functionF = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^{\frac{2}{3}}" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionF[1].set_color(INPUT_COLOR)
+        functionF[3].set_color(INPUT_COLOR)
+
+        functionG = MathTex(r"g(" , r"x" , r") = " , r"f(" , r"x" , r")" , r"- 2" , color=GREEN).scale(0.9).to_edge(LEFT , buff=0.3).shift(DOWN)
+        functionG[1].set_color(INPUT_COLOR)
+        functionG[4].set_color(INPUT_COLOR)
+        functionG[3].set_color(OUTPUT_COLOR)
+        functionG[5].set_color(OUTPUT_COLOR)
+
+        curve_p1 = number_plane.plot(lambda x: pow(x*x , 1/3) , [-10,0] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve_p2 = number_plane.plot(lambda x: pow(x*x , 1/3) , [0,10] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve = VGroup(curve_p1 , curve_p2)
+
+        self.add(number_plane , functionF , curve)
+        self.wait(0.5)
+        self.play(Write(functionG))
+
+
+        self.wait()
