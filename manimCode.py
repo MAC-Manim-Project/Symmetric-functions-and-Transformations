@@ -1,5 +1,5 @@
 from manim import *
-from utilities import myScale , truncate_decimal , TransformMatchingFromCopy , FadeInAndOutDirectional
+from utilities import myScale , truncate_decimal , TransformMatchingFromCopy , FadeInAndOutDirectional , Slider , FadeOutAll , FadeOutAllExcept
 from icons import screenRectanlge , CheckMark
 from math import sin , cos , floor
 
@@ -917,19 +917,146 @@ class Scene8(Scene):
         functionF[1].set_color(INPUT_COLOR)
         functionF[3].set_color(INPUT_COLOR)
 
+        functionFNext = MathTex(r"f(" , r"x" , r") = " , r"x" , r"^2" , color=OUTPUT_COLOR).move_to(functionF).align_to(functionF , DL)
+        functionFNext[1].set_color(INPUT_COLOR)
+        functionFNext[3].set_color(INPUT_COLOR)
+
         functionG = MathTex(r"g(" , r"x" , r") = " , r"f(" , r"x" , r")" , r"- 2" , color=GREEN).scale(0.9).to_edge(LEFT , buff=0.3).shift(DOWN)
         functionG[1].set_color(INPUT_COLOR)
         functionG[4].set_color(INPUT_COLOR)
         functionG[3].set_color(OUTPUT_COLOR)
         functionG[5].set_color(OUTPUT_COLOR)
+                                            
+        functionG_next = MathTex(r"g(" , r"x" , r") = " , r"x" , r"^\frac{2}{3}" , r"- 2" , color=GREEN).scale(0.9).move_to(functionG).align_to(functionG , LEFT).shift(UP * 0.05)
+        functionG_next[1].set_color(INPUT_COLOR)
+        functionG_next[3].set_color(INPUT_COLOR)
+        functionG_next[4].set_color(OUTPUT_COLOR)
+
+        functionG2 = MathTex(r"g(" , r"x" , r") = " , r"f(" , r"x" , r")" , r"+ 1" , color=GREEN).scale(0.9).to_edge(LEFT , buff=0.3).shift(DOWN)
+        functionG2[1].set_color(INPUT_COLOR)
+        functionG2[4].set_color(INPUT_COLOR)
+        functionG2[3].set_color(OUTPUT_COLOR)
+        functionG2[5].set_color(OUTPUT_COLOR)
+
+        functionGWithA = MathTex(r"g(" , r"x" , r") = " , r"f(" , r"x" , r")" , r"+ a" , color=GREEN).scale(0.9).to_edge(LEFT , buff=0.3).shift(DOWN)
+        functionGWithA[1].set_color(INPUT_COLOR)
+        functionGWithA[4].set_color(INPUT_COLOR)
+        functionGWithA[3].set_color(OUTPUT_COLOR)
+        functionGWithA[5].set_color(OUTPUT_COLOR)
+
+        aValueTracker = ValueTracker(1)
 
         curve_p1 = number_plane.plot(lambda x: pow(x*x , 1/3) , [-10,0] , color=OUTPUT_COLOR , stroke_width = 3)
         curve_p2 = number_plane.plot(lambda x: pow(x*x , 1/3) , [0,10] , color=OUTPUT_COLOR , stroke_width = 3)
         curve = VGroup(curve_p1 , curve_p2)
+        curveCopy = curve.copy()
+
+        nextCurve = curve.copy().shift(number_plane.c2p(0,-2))
+        nextCurve[0].set_color(GREEN)
+        nextCurve[1].set_color(GREEN)
+
+        def nextCurveGiver():
+            c = curve.copy().shift(number_plane.c2p(0 , aValueTracker.get_value()))
+            c[0].set_color(GREEN)
+            c[1].set_color(GREEN)
+
+            return c
+
+        nextCurve2 = always_redraw(nextCurveGiver)
+
+        parabolap1 = number_plane.plot(lambda x: x*x , [-2.45,0] , color=OUTPUT_COLOR , stroke_width = 3)
+        parabolap2 = number_plane.plot(lambda x: x*x , [0,2.45] , color=OUTPUT_COLOR , stroke_width = 3)
+        parabola = VGroup(parabolap1 , parabolap2)
+
+        parabolaGreenp1 = number_plane.plot(lambda x: (x*x)-2 , [-2.85,0] , color=GREEN , stroke_width = 3)
+        parabolaGreenp2 = number_plane.plot(lambda x: (x*x)-2 , [0,2.85] , color=GREEN , stroke_width = 3)
+        parabolaGreen = VGroup(parabolaGreenp1 , parabolaGreenp2)
+
+        points = VGroup()
+        points_on_curve = VGroup()
+        lines = VGroup()
+
+        nextPoints = VGroup()
+        nextLines = VGroup()
+
+        n = 101
+        for i in range(n):
+            x = (i * (20/(n-1))) - 10
+            y = pow(x*x , 1/3)
+
+            #bad variable names example:
+            d = Dot(number_plane.c2p(x , 0) , color=YELLOW , radius=0.025)
+            p = Dot(number_plane.c2p(x , y) , color=OUTPUT_COLOR , radius=0.035)
+            l = Line(start=d.get_center() , end = p.get_center() , color=WHITE , stroke_width = 1.5)
+
+            np = Dot(number_plane.c2p(x , y-2) , color=GREEN , radius=0.035)
+            nl = Line(start=d.get_center() , end = np.get_center() , color=WHITE , stroke_width = 1.5)
+             
+
+            points.add(d)
+            points_on_curve.add(p)
+            lines.add(l)
+
+            nextPoints.add(np)
+            nextLines.add(nl)
+        
+        aValueText = MathTex(r"a:" , color=GREEN).scale(0.67).next_to(functionGWithA , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.5).align_to(functionGWithA , LEFT)
+        
+        def aSliderGiver():
+            s = Slider(
+                x_min=-3,
+                x_max=3,
+                x=1,
+                length=4.5,
+                dot_config={
+                    "color": BLUE,
+                    "radius": 0.03,
+                },
+                line_config={
+                    "include_numbers": True,
+                    "font_size": 20
+                }
+            ).next_to(aValueText , RIGHT)
+
+            return s
+            
+        aValueSlider = aSliderGiver()
+
 
         self.add(number_plane , functionF , curve)
         self.wait(0.5)
         self.play(Write(functionG))
 
+        self.play(Wiggle(functionG[3:6]))
+        self.play(Indicate(functionG[1]))
+        self.play(TransformMatchingFromCopy(functionG[1] , functionG[4]))
+        self.play(Circumscribe(functionG[6] , shape=Circle , stroke_width = 1.8))
+        self.play(Circumscribe(functionF , stroke_width = 1.8))
+        self.play(TransformMatchingFromCopy(functionF[3:] , functionG_next[3:5]) , FadeOut(functionG[3:6]) , TransformMatchingShapes(functionG[6] , functionG_next[-1]) , TransformMatchingShapes(functionG[:3] , functionG_next[:3]))
+        self.play(TransformMatchingTex(functionG_next , functionG))
+
+        points_fadeIn = [FadeIn(point , scale=5 , run_time = 0.3) for point in points]
+        lines_create = [Create(line) for line in lines]
+        pointsOnCurve_fadeIn = [FadeIn(point , shift = UP * point.get_y()) for point in points_on_curve]
+
+        self.play(AnimationGroup(*points_fadeIn , lag_ratio=0.03))
+        self.play(AnimationGroup(*lines_create) , AnimationGroup(*pointsOnCurve_fadeIn))
+
+        self.play(Transform(points_on_curve , nextPoints) , Transform(lines , nextLines))
+        self.play(Create(nextCurve))
+        self.play(FadeOut(points , points_on_curve , lines))
+        self.play(TransformMatchingShapes(functionF[-1] , functionFNext[-1]) , ReplacementTransform(curve[0] , parabola[0]) , ReplacementTransform(curve[1] , parabola[1]) , FadeOut(nextCurve) )
+        self.play(TransformFromCopy(parabola.copy() , parabolaGreen))
+        self.play(Circumscribe(functionG , stroke_width=1.8))
+
+        self.play(TransformMatchingShapes(functionFNext[-1] , functionF[-1]) , ReplacementTransform(parabola , curveCopy) , FadeOut(parabolaGreen))
+        self.play(TransformMatchingTex(functionG , functionG2) , FocusOn(functionG2[-1] , opacity=0.5))
+        self.play(TransformFromCopy(curveCopy , nextCurve2))
+
+        self.play(TransformMatchingTex(functionG2 , functionGWithA) , Write(aValueText) , FadeIn(aValueSlider) )
+        self.play(aValueTracker.animate.set_value(3) , aValueSlider.animate.set_value(3))
+        self.play(aValueTracker.animate.set_value(-3) , aValueSlider.animate.set_value(-3) , run_time = 2)
+
+        self.play(FadeOut(functionGWithA , aValueText , aValueSlider , nextCurve2))
 
         self.wait()
