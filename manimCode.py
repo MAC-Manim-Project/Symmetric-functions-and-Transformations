@@ -1177,5 +1177,43 @@ class Scene9(Scene):
         self.play(aValueTracker.animate.set_value(3) , aValueSlider.animate.set_value(3))
         self.play(aValueTracker.animate.set_value(-3) , aValueSlider.animate.set_value(-3))
 
+        self.play(FadeOutAllExcept(self , number_plane))
+
+        self.wait()
+
+class Scene10(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+
+        functionF = MathTex(r"f(" , r"x" , r") = -" , r"x" , r"^2" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionF[1].set_color(INPUT_COLOR)
+        functionF[3].set_color(INPUT_COLOR)
+
+        curve = number_plane.plot(lambda x: -x*x , [-3,3] , color=OUTPUT_COLOR , stroke_width = 3)
+        curve_faded = curve.copy().set_stroke(opacity=0.3)
+
+        self.add(number_plane)
+        self.wait(0.4)
+        self.play(Write(functionF) , Create(curve) , Create(curve_faded))
+        self.play(FocusOn(ORIGIN))
+        self.play(curve_faded.animate.shift(number_plane.c2p(2,3)))
 
         self.wait()
