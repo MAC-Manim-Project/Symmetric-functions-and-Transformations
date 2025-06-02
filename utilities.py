@@ -33,10 +33,10 @@ def TransformMatchingFromCopy(source, target, **kwargs):
 
 
 class FadeInAndOutDirectional(Succession):
-    def __init__(self, mobject, shift , **kwargs):
+    def __init__(self, mobject, shift , run_time = 0.5 , **kwargs):
         super().__init__(
-            FadeIn(mobject, shift=shift, rate_func=rush_into),
-            FadeOut(mobject, shift=shift, rate_func=rush_from),
+            FadeIn(mobject, shift=shift * 0.5, rate_func=rush_into , run_time = run_time),
+            FadeOut(mobject, shift=shift * 0.5, rate_func=rush_from , run_time = run_time),
             **kwargs
         )
 

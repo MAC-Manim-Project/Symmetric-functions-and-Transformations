@@ -1207,13 +1207,104 @@ class Scene10(Scene):
         functionF[1].set_color(INPUT_COLOR)
         functionF[3].set_color(INPUT_COLOR)
 
+        functionG = MathTex(r"g(" , r"x" , r")", r" = " , r"f" , r"(" , r"x" , r"-2)" , r"+3" , color=GREEN).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG[1].set_color(INPUT_COLOR)
+        functionG[6].set_color(INPUT_COLOR)
+        functionG[4].set_color(OUTPUT_COLOR)
+
+        functionG2 = MathTex(r" = " , r"-" , r"(" , r"x" , r"-2)" , r"^2" , r"+3" , color=GREEN).next_to(functionG , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.7).align_to(functionG[3] , LEFT)
+        functionG2[3].set_color(INPUT_COLOR)
+
         curve = number_plane.plot(lambda x: -x*x , [-3,3] , color=OUTPUT_COLOR , stroke_width = 3)
         curve_faded = curve.copy().set_stroke(opacity=0.3)
+
+        curveGreen = number_plane.plot(lambda x: -x*x , [-3,3] , color=GREEN , stroke_width = 3).shift(number_plane.c2p(2,0))
 
         self.add(number_plane)
         self.wait(0.4)
         self.play(Write(functionF) , Create(curve) , Create(curve_faded))
         self.play(FocusOn(ORIGIN))
         self.play(curve_faded.animate.shift(number_plane.c2p(2,3)))
+        self.play(FadeOut(curve_faded))
+        curve_faded.shift(number_plane.c2p(-2,-3))
+        self.add(curve_faded)
+        self.play(Write(functionG[:3]))
+        self.play(curve_faded.animate.shift(number_plane.c2p(2,0)))
+        self.play(curve_faded.animate.shift(number_plane.c2p(0,3)))
+        
+        self.play(FadeOut(curve_faded))
+
+        self.play(Write(functionG[3:8]))
+        self.play(TransformFromCopy(curve , curveGreen))
+        self.play(Write(functionG[8:]))
+        self.play(curveGreen.animate.shift(number_plane.c2p(0,3)))
+
+        self.play(Circumscribe(functionG[4:8] , stroke_width=2 , fade_out=True))
+        self.play(Indicate(functionF[1]))
+        self.play(functionF[2][2].animate.scale(1.1).set_color(YELLOW) , run_time = 0.5)
+        self.play(functionF[3].animate.scale(1.1).set_color(YELLOW) , run_time = 0.5)
+        self.play(functionF[4].animate.scale(1.1).set_color(YELLOW) , run_time = 0.5)
+
+        self.play(functionF[2][2].animate.scale(1/1.1).set_color(OUTPUT_COLOR) , functionF[3].animate.scale(1/1.1).set_color(INPUT_COLOR) , functionF[4].animate.scale(1/1.1).set_color(OUTPUT_COLOR))
+        self.play(Write(functionG2[0]))
+        self.play(FadeIn(functionG2[1] , scale=1.4) , run_time = 0.5)
+        self.play(FadeIn(functionG2[2:5] , scale=1.4) , run_time = 0.5)
+        self.play(FadeIn(functionG2[5] , scale=1.4) , run_time = 0.5)
+        self.play(Write(functionG2[6]))
+        self.play(Circumscribe(functionG[4:] , stroke_width=2 , fade_out=True))
+        self.play(Circumscribe(functionG2[1:] , stroke_width=2 , fade_out=True))
+
+        self.play(FadeOutAllExcept(self , number_plane))
+
+        self.wait()
+
+class Scene11(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+
+        functionF = MathTex(r"f(" , r"x" , r") = " , r"x" , r"\cos(" , r"x" , r")" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionF[1].set_color(INPUT_COLOR)
+        functionF[3].set_color(INPUT_COLOR)
+        functionF[5].set_color(INPUT_COLOR)
+
+        functionG = MathTex(r"g(" , r"x" , r")" , r" = " , r"2" , r"f" , r"(" , r"x" , r")" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG[1].set_color(INPUT_COLOR)
+        functionG[7].set_color(INPUT_COLOR)
+        functionG[5].set_color(OUTPUT_COLOR)
+
+        curve = number_plane.plot(lambda x : x * cos(x) , [-8.7 , 8.7] , color=OUTPUT_COLOR , stroke_width = 3)
+
+        self.add(number_plane)
+        self.wait(0.5)
+        # self.play(FadeInAndOutDirectional(arrow1 , UP) , FadeInAndOutDirectional(arrow2 , UP) , FadeInAndOutDirectional(arrow3 , DOWN) , FadeInAndOutDirectional(arrow4 , DOWN))
+        self.play(number_plane.animate.scale([1,1.5,1]) , run_time = 0.5)
+        self.play(number_plane.animate.scale([1,1/1.5,1]) , run_time = 0.5)
+        self.wait(0.5)
+
+        self.play(number_plane.animate.scale([1.5,1,1]) , run_time = 0.5)
+        self.play(number_plane.animate.scale([1/1.5,1,1]) , run_time = 0.5)
+
+        self.play(Write(functionF))
+        self.play(Create(curve))
+        self.play(Write(functionG[:3]))
+        self.play(Write(functionG[3:]))
 
         self.wait()
