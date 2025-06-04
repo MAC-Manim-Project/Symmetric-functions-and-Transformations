@@ -1291,6 +1291,37 @@ class Scene11(Scene):
         functionG[5].set_color(OUTPUT_COLOR)
 
         curve = number_plane.plot(lambda x : x * cos(x) , [-8.7 , 8.7] , color=OUTPUT_COLOR , stroke_width = 3)
+        curveG = number_plane.plot(lambda x : 2 * x * cos(x) , [-8.3 , 8.3] , color=GREEN , stroke_width = 3)
+
+        points = VGroup()
+        points_on_curve = VGroup()
+        lines = VGroup()
+
+        nextPoints = VGroup()
+        nextLines = VGroup()
+
+        n = 101
+        for i in range(n):
+            x = (i * (20/(n-1))) - 10
+            y = x * cos(x)
+
+            #bad variable names example (again):
+            d = Dot(number_plane.c2p(x , 0) , color=YELLOW , radius=0.025)
+            p = Dot(number_plane.c2p(x , y) , color=OUTPUT_COLOR , radius=0.035)
+            l = Line(start=d.get_center() , end = p.get_center() , color=WHITE , stroke_width = 1.5)
+
+            np = Dot(number_plane.c2p(x , 2 * y) , color=GREEN , radius=0.035)
+            nl = Line(start=d.get_center() , end = np.get_center() , color=WHITE , stroke_width = 1.5)
+             
+
+            points.add(d)
+            points_on_curve.add(p)
+            lines.add(l)
+
+            nextPoints.add(np)
+            nextLines.add(nl)
+
+
 
         self.add(number_plane)
         self.wait(0.5)
@@ -1306,5 +1337,16 @@ class Scene11(Scene):
         self.play(Create(curve))
         self.play(Write(functionG[:3]))
         self.play(Write(functionG[3:]))
+
+        points_fadeIn = [FadeIn(point , scale=5 , run_time = 0.3) for point in points]
+        lines_create = [Create(line) for line in lines]
+        pointsOnCurve_fadeIn = [FadeIn(point , shift = UP * point.get_y()) for point in points_on_curve]
+
+        self.play(AnimationGroup(*points_fadeIn , lag_ratio=0.03))
+        self.play(AnimationGroup(*lines_create) , AnimationGroup(*pointsOnCurve_fadeIn))
+
+        self.play(ReplacementTransform(points_on_curve , nextPoints) , ReplacementTransform(lines , nextLines))
+        self.play(FadeOut(nextLines,points))
+        self.play(Create(curveG))
 
         self.wait()
