@@ -1289,37 +1289,43 @@ class Scene11(Scene):
         functionG[1].set_color(INPUT_COLOR)
         functionG[7].set_color(INPUT_COLOR)
         functionG[5].set_color(OUTPUT_COLOR)
+        functionG.z_index=1000
+
+        functionG2 = MathTex(r"g(" , r"x" , r")" , r" = " , r"a" , r"f" , r"(" , r"x" , r")" , color=GREEN).scale(0.95).move_to(number_plane.c2p(0,5))
+        functionG2[1].set_color(INPUT_COLOR)
+        functionG2[7].set_color(INPUT_COLOR)
+        functionG2[5].set_color(OUTPUT_COLOR)
+
+        aValueText = MathTex(r"a: " , color=GREEN).scale(0.8).next_to(functionG2 , DOWN).align_to(functionG2 , LEFT)
+
+        aValueSlider = Slider(
+            x=2,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.03,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15
+            }
+        ).next_to(aValueText , RIGHT)
+
+        # dynamicFunctionG = VGroup(functionG2 , aValueText , aValueSlider)
+        # dynamicFunctionG.add_background_rectangle()
 
         curve = number_plane.plot(lambda x : x * cos(x) , [-8.7 , 8.7] , color=OUTPUT_COLOR , stroke_width = 3)
-        curveG = number_plane.plot(lambda x : 2 * x * cos(x) , [-8.3 , 8.3] , color=GREEN , stroke_width = 3)
+        curveG = curve.copy()
+
+        scaleValue = ValueTracker(2)
+        dynamicCurveG = always_redraw(lambda : number_plane.plot(lambda x : x * cos(x) , [-10 , 10] , color=GREEN , stroke_width = 3).scale([1 , scaleValue.get_value() , 1]))
 
         points = VGroup()
-        points_on_curve = VGroup()
-        lines = VGroup()
+        xValues = [(-2*PI) - (PI/2) , (-2*PI) + (PI/2) , -PI/2 , 0 , PI/2 , (2*PI) - (PI/2) , (2*PI) + (PI/2)]
 
-        nextPoints = VGroup()
-        nextLines = VGroup()
-
-        n = 101
-        for i in range(n):
-            x = (i * (20/(n-1))) - 10
-            y = x * cos(x)
-
-            #bad variable names example (again):
-            d = Dot(number_plane.c2p(x , 0) , color=YELLOW , radius=0.025)
-            p = Dot(number_plane.c2p(x , y) , color=OUTPUT_COLOR , radius=0.035)
-            l = Line(start=d.get_center() , end = p.get_center() , color=WHITE , stroke_width = 1.5)
-
-            np = Dot(number_plane.c2p(x , 2 * y) , color=GREEN , radius=0.035)
-            nl = Line(start=d.get_center() , end = np.get_center() , color=WHITE , stroke_width = 1.5)
-             
-
-            points.add(d)
-            points_on_curve.add(p)
-            lines.add(l)
-
-            nextPoints.add(np)
-            nextLines.add(nl)
+        for xValue in xValues:
+            dot = Dot(number_plane.c2p(xValue , 0) , radius=0.03 , color=YELLOW)
+            points.add(dot)
 
 
 
@@ -1334,19 +1340,50 @@ class Scene11(Scene):
         self.play(number_plane.animate.scale([1/1.5,1,1]) , run_time = 0.5)
 
         self.play(Write(functionF))
-        self.play(Create(curve))
+        self.play(Create(curve) , Create(curveG))
         self.play(Write(functionG[:3]))
         self.play(Write(functionG[3:]))
 
-        points_fadeIn = [FadeIn(point , scale=5 , run_time = 0.3) for point in points]
-        lines_create = [Create(line) for line in lines]
-        pointsOnCurve_fadeIn = [FadeIn(point , shift = UP * point.get_y()) for point in points_on_curve]
+        self.play(curveG.animate.scale([1,2,1]).set_color(GREEN))
+        self.play(functionG.animate.move_to(number_plane.c2p(0,5)))
 
-        self.play(AnimationGroup(*points_fadeIn , lag_ratio=0.03))
-        self.play(AnimationGroup(*lines_create) , AnimationGroup(*pointsOnCurve_fadeIn))
+        xValueTracker = ValueTracker(0.85)
+        xLine = always_redraw(lambda : Line(start=number_plane.c2p(xValueTracker.get_value() , 0) , end = number_plane.c2p(xValueTracker.get_value() , (2 * xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , stroke_width = 2 , color=WHITE))
+        movingPoints = always_redraw(lambda : 
+            VGroup(
+                Dot(number_plane.c2p(xValueTracker.get_value() , (xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , radius = 0.04 , color=YELLOW),
+                Dot(number_plane.c2p(xValueTracker.get_value() , (2 * xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , radius = 0.04 , color=YELLOW),
+            )                             
+        )
 
-        self.play(ReplacementTransform(points_on_curve , nextPoints) , ReplacementTransform(lines , nextLines))
-        self.play(FadeOut(nextLines,points))
-        self.play(Create(curveG))
+        self.play(FadeIn(xLine , movingPoints))
+        self.play(xValueTracker.animate.set_value(2.5) , run_time = 1 )
+        self.play(xValueTracker.animate.set_value(-3) , run_time = 2 )
+
+        self.play(FadeOut(xLine , movingPoints))
+
+        self.play(curveG.animate.set_stroke(opacity=0.217))
+
+        points_fadeIn = [FadeIn(point , scale=6 , run_time = 0.6) for point in points]
+        self.play(AnimationGroup(*points_fadeIn , lag_ratio=0.2))
+        self.play(curveG.animate.set_stroke(opacity=1) , FadeOut(points))
+
+        self.play(Circumscribe(functionG , stroke_width = 2))
+
+        backgroundRectangles = VGroup(
+            BackgroundRectangle(functionG2),
+            BackgroundRectangle(aValueText),
+            BackgroundRectangle(aValueSlider)
+        )
+        backgroundRectangles.set_z_index(-1000)
+        functionG.set_z_index(1000)
+        number_plane.set_z_index(-10000)
+
+        self.play(FadeIn(backgroundRectangles , run_time = 0.5) , TransformMatchingTex(functionG , functionG2 , run_time = 0.6) , Write(aValueText) , FadeIn(aValueSlider))
+        self.add(dynamicCurveG)
+        self.play(FadeOut(curveG , run_time = 0.1))
+        
+        self.play(scaleValue.animate.set_value(3) , aValueSlider.animate.set_value(3))
+        self.play(scaleValue.animate.set_value(0.5) , aValueSlider.animate.set_value(0.5))
 
         self.wait()

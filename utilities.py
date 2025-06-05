@@ -59,7 +59,7 @@ class FadeOutAllExcept(AnimationGroup):
         super().__init__(*animations, **kwargs)
 
 
-class Slider(Mobject):
+class Slider(VMobject):
     def __init__(
         self,
         x_min=-3,
