@@ -1280,7 +1280,7 @@ class Scene11(Scene):
         )
         number_plane.set_stroke(opacity=0.35)
 
-        functionF = MathTex(r"f(" , r"x" , r") = " , r"x" , r"\cos(" , r"x" , r")" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionF = MathTex(r"f(" , r"x" , r") = " , r"x" , r" + 2\cos(" , r"x" , r")" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
         functionF[1].set_color(INPUT_COLOR)
         functionF[3].set_color(INPUT_COLOR)
         functionF[5].set_color(INPUT_COLOR)
@@ -1291,7 +1291,7 @@ class Scene11(Scene):
         functionG[5].set_color(OUTPUT_COLOR)
         functionG.z_index=1000
 
-        functionG2 = MathTex(r"g(" , r"x" , r")" , r" = " , r"a" , r"f" , r"(" , r"x" , r")" , color=GREEN).scale(0.95).move_to(number_plane.c2p(0,5))
+        functionG2 = MathTex(r"g(" , r"x" , r")" , r" = " , r"a" , r"f" , r"(" , r"x" , r")" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
         functionG2[1].set_color(INPUT_COLOR)
         functionG2[7].set_color(INPUT_COLOR)
         functionG2[5].set_color(OUTPUT_COLOR)
@@ -1314,14 +1314,15 @@ class Scene11(Scene):
         # dynamicFunctionG = VGroup(functionG2 , aValueText , aValueSlider)
         # dynamicFunctionG.add_background_rectangle()
 
-        curve = number_plane.plot(lambda x : x * cos(x) , [-8.7 , 8.7] , color=OUTPUT_COLOR , stroke_width = 3)
-        curveG = curve.copy()
+        curve = number_plane.plot(lambda x : x + 2 * cos(x) , [-8 , 8] , color=OUTPUT_COLOR , stroke_width = 3)
+        curveG = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
 
         scaleValue = ValueTracker(2)
-        dynamicCurveG = always_redraw(lambda : number_plane.plot(lambda x : x * cos(x) , [-10 , 10] , color=GREEN , stroke_width = 3).scale([1 , scaleValue.get_value() , 1]))
+        opacityValue = ValueTracker(1)
+        dynamicCurveG = always_redraw(lambda : number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=GREEN , stroke_width = 3).scale([1 , scaleValue.get_value() , 1] , about_point = ORIGIN).set_stroke(opacity=opacityValue.get_value()))
 
         points = VGroup()
-        xValues = [(-2*PI) - (PI/2) , (-2*PI) + (PI/2) , -PI/2 , 0 , PI/2 , (2*PI) - (PI/2) , (2*PI) + (PI/2)]
+        xValues = [-1.02987]
 
         for xValue in xValues:
             dot = Dot(number_plane.c2p(xValue , 0) , radius=0.03 , color=YELLOW)
@@ -1344,27 +1345,26 @@ class Scene11(Scene):
         self.play(Write(functionG[:3]))
         self.play(Write(functionG[3:]))
 
-        self.play(curveG.animate.scale([1,2,1]).set_color(GREEN))
-        self.play(functionG.animate.move_to(number_plane.c2p(0,5)))
+        self.play(curveG.animate.scale([1,2,1] , about_point = ORIGIN).set_color(GREEN))
 
-        xValueTracker = ValueTracker(0.85)
-        xLine = always_redraw(lambda : Line(start=number_plane.c2p(xValueTracker.get_value() , 0) , end = number_plane.c2p(xValueTracker.get_value() , (2 * xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , stroke_width = 2 , color=WHITE))
+        xValueTracker = ValueTracker(2.6)
+        xLine = always_redraw(lambda : Line(start=number_plane.c2p(xValueTracker.get_value() , 0) , end = number_plane.c2p(xValueTracker.get_value() , (2 * (xValueTracker.get_value() + 2 * cos(xValueTracker.get_value())) ) ) , stroke_width = 2 , color=WHITE))
         movingPoints = always_redraw(lambda : 
             VGroup(
-                Dot(number_plane.c2p(xValueTracker.get_value() , (xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , radius = 0.04 , color=YELLOW),
-                Dot(number_plane.c2p(xValueTracker.get_value() , (2 * xValueTracker.get_value() * cos(xValueTracker.get_value())) ) , radius = 0.04 , color=YELLOW),
+                Dot(number_plane.c2p(xValueTracker.get_value() , (xValueTracker.get_value() + 2 * cos(xValueTracker.get_value())) ) , radius = 0.04 , color=YELLOW),
+                Dot(number_plane.c2p(xValueTracker.get_value() , (2 * (xValueTracker.get_value() + 2 * cos(xValueTracker.get_value())) ) ) , radius = 0.04 , color=YELLOW),
             )                             
         )
 
         self.play(FadeIn(xLine , movingPoints))
-        self.play(xValueTracker.animate.set_value(2.5) , run_time = 1 )
-        self.play(xValueTracker.animate.set_value(-3) , run_time = 2 )
+        self.play(xValueTracker.animate.set_value(0) , run_time = 1.5 )
+        self.play(xValueTracker.animate.set_value(-2) , run_time = 1.5 )
 
         self.play(FadeOut(xLine , movingPoints))
 
         self.play(curveG.animate.set_stroke(opacity=0.217))
 
-        points_fadeIn = [FadeIn(point , scale=6 , run_time = 0.6) for point in points]
+        points_fadeIn = [FadeIn(point , scale=6 , run_time = 1) for point in points]
         self.play(AnimationGroup(*points_fadeIn , lag_ratio=0.2))
         self.play(curveG.animate.set_stroke(opacity=1) , FadeOut(points))
 
@@ -1385,5 +1385,83 @@ class Scene11(Scene):
         
         self.play(scaleValue.animate.set_value(3) , aValueSlider.animate.set_value(3))
         self.play(scaleValue.animate.set_value(0.5) , aValueSlider.animate.set_value(0.5))
+        self.play(scaleValue.animate.set_value(-1) , aValueSlider.animate.set_value(-1))
+
+        point = Dot(number_plane.c2p(3,0) , radius=0.03 , color=YELLOW)
+        verticalLine = Line(start=number_plane.c2p(3,0) , end=number_plane.c2p(3 , 1.02) , stroke_width = 2)
+        pointOnCurve = Dot(number_plane.c2p(3,1.02) , radius=0.045 , color=RED)
+
+        newCurve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
+
+        self.play(FadeIn(point , scale=6 , run_time = 1) , opacityValue.animate.set_value(0.25))
+        self.play(Create(verticalLine) , TransformFromCopy(point , pointOnCurve))
+        self.play(Rotate(verticalLine , PI , RIGHT , about_point=number_plane.c2p(3,0) , rate_func = linear) , pointOnCurve.animate(rate_func = ease_in_out_sine).shift(number_plane.c2p(0 , 1.02 * -2)).set_color(GREEN))
+        self.play(FadeOut(pointOnCurve , point , verticalLine))
+        self.add(newCurve)
+        self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
+        self.play(FadeOut(newCurve) , run_time = 0.1)
+        self.play(scaleValue.animate.set_value(-2) , aValueSlider.animate.set_value(-2))
+        self.play(opacityValue.animate.set_value(0))
+
+        newCurve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
+        self.add(newCurve)
+        self.play(newCurve.animate.scale([1,2,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN))
+
+        self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
+        self.play(FadeOut(newCurve) , run_time = 0.1)
+
+        self.play(scaleValue.animate.set_value(-0.5) , aValueSlider.animate.set_value(-0.5))
+        self.play(opacityValue.animate.set_value(0))
+
+        newCurve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
+        self.add(newCurve)
+        self.play(newCurve.animate.scale([1,0.5,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN))
+
+        self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
+        self.play(FadeOut(newCurve) , run_time = 0.1)
+
+
+        self.wait()
+
+        self.play(FadeOutAllExcept(self , number_plane , functionF , curve))
+        self.wait()
+
+
+class Scene12(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+        
+        functionF = MathTex(r"f(" , r"x" , r") = " , r"x" , r"+2\cos(" , r"x" , r")" , color=OUTPUT_COLOR).to_corner(UL , buff=0.3)
+        functionF[1].set_color(INPUT_COLOR)
+        functionF[3].set_color(INPUT_COLOR)
+        functionF[5].set_color(INPUT_COLOR)
+
+        curve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
+
+        self.add(number_plane , functionF , curve)
+        self.wait(0.5)
+
+
 
         self.wait()
