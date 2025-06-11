@@ -1399,28 +1399,39 @@ class Scene11(Scene):
         self.play(FadeOut(pointOnCurve , point , verticalLine))
         self.add(newCurve)
         self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.wait(0.3)
         self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
         self.play(FadeOut(newCurve) , run_time = 0.1)
         self.play(scaleValue.animate.set_value(-2) , aValueSlider.animate.set_value(-2))
+        self.wait(0.3)
         self.play(opacityValue.animate.set_value(0))
 
         newCurve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
         self.add(newCurve)
         self.play(newCurve.animate.scale([1,2,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.wait(0.3)
         self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN))
+        self.wait(0.3)
 
         self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
+        self.wait(0.3)
         self.play(FadeOut(newCurve) , run_time = 0.1)
 
+        self.wait(0.3)
         self.play(scaleValue.animate.set_value(-0.5) , aValueSlider.animate.set_value(-0.5))
+        self.wait(0.3)
         self.play(opacityValue.animate.set_value(0))
+        self.wait(0.3)
 
         newCurve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
         self.add(newCurve)
         self.play(newCurve.animate.scale([1,0.5,1]  , about_point = ORIGIN).set_stroke(color=GREEN))
+        self.wait(0.3)
         self.play(newCurve.animate.scale([1,-1,1]  , about_point = ORIGIN))
+        self.wait(0.3)
 
         self.play(opacityValue.animate.set_value(1) , run_time = 0.1)
+        self.wait(0.3)
         self.play(FadeOut(newCurve) , run_time = 0.1)
 
 
@@ -1457,11 +1468,44 @@ class Scene12(Scene):
         functionF[3].set_color(INPUT_COLOR)
         functionF[5].set_color(INPUT_COLOR)
 
+        functionG = MathTex(r"g(" , r"x" , r") = " , r"f" , r"(3" , r"x" , r")" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG[1].set_color(INPUT_COLOR)
+        functionG[5].set_color(INPUT_COLOR)
+        functionG[3].set_color(OUTPUT_COLOR)
+
         curve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
+        rightCurveG = number_plane.plot(lambda x : (3*x) + 2 * cos(3 * x) , x_range=[1 , 10] , color=GREEN , stroke_width = 3)
+        curveG = number_plane.plot(lambda x : (3*x) + 2 * cos(3 * x) , x_range=[-10 , 10] , color=GREEN , stroke_width = 3)
+
+        xValue = ValueTracker(1)
+
+        exampleInputg = always_redraw(lambda : Dot(number_plane.c2p(xValue.get_value(),0) , radius=0.04 , color=YELLOW))
+        exampleInputf = always_redraw(lambda : Dot(number_plane.c2p(xValue.get_value() * 3,0) , radius=0.04 , color=YELLOW))
+        arrow = always_redraw(lambda : Arrow(exampleInputg.get_center() , exampleInputf.get_center() , buff=0 , color=BLUE , max_tip_length_to_length_ratio=0.15 , max_stroke_width_to_length_ratio=3))
+        pointg = always_redraw(lambda : Dot(number_plane.c2p(xValue.get_value(), 3 * xValue.get_value() + 2*cos(3 * xValue.get_value())) , radius=0.04 , color=GREEN))
+        pointf = always_redraw(lambda : Dot(number_plane.c2p(3 * xValue.get_value(), 3*xValue.get_value() + 2*cos(3 * xValue.get_value())) , radius=0.04 , color=OUTPUT_COLOR))
+        linef = always_redraw(lambda : Line(exampleInputf.get_center() , pointf.get_center() , stroke_width = 2))
+        lineg = always_redraw(lambda : Line(exampleInputg.get_center() , pointg.get_center() , stroke_width = 2))
+        partialCurveg = always_redraw(lambda : number_plane.plot(lambda x : (3*x) + 2 * cos(3 * x) , x_range=([1 , xValue.get_value()] if xValue.get_value() >=1 else [xValue.get_value() , 1]) , color=GREEN , stroke_width = 3))
 
         self.add(number_plane , functionF , curve)
         self.wait(0.5)
+        self.play(Write(functionG))
+        self.play(FadeIn(exampleInputg , scale = 6))
+        self.play(Circumscribe(VGroup(functionG[4][1] , functionG[5]) , Rectangle , stroke_width=2))
+        self.play(TransformFromCopy(exampleInputg , exampleInputf) , GrowArrow(arrow))
+        self.play(Circumscribe(exampleInputg , Circle , stroke_width=2))
+        self.play(Circumscribe(exampleInputf , Circle , stroke_width=2))
 
-
+        self.play(Create(linef) , TransformFromCopy(exampleInputf , pointf))
+        self.play(TransformFromCopy(linef , lineg) , TransformFromCopy(pointf , pointg))
+        self.add(partialCurveg)
+        self.wait()
+        self.play(xValue.animate.set_value(1.717) , run_time = 1.3)
+        self.add(rightCurveG)
+        self.play(xValue.animate.set_value(-2.402) , run_time = 3 , rate_func = smootherstep)
+        self.add(curveG)
+        self.play(FadeOut(partialCurveg) , run_time = 0.1)
+        self.play(FadeOut(arrow , pointf , pointg , linef , lineg , exampleInputf , exampleInputg))
 
         self.wait()
