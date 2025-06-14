@@ -1473,9 +1473,42 @@ class Scene12(Scene):
         functionG[5].set_color(INPUT_COLOR)
         functionG[3].set_color(OUTPUT_COLOR)
 
+        functionG2 = MathTex(r"g(" , r"x" , r") = " , r"f" , r"\left(\frac{x}{3}\right)" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG2[1].set_color(INPUT_COLOR)
+        functionG2[4][1].set_color(INPUT_COLOR)
+        functionG2[3].set_color(OUTPUT_COLOR)
+
+        functionG3 = MathTex(r"g(" , r"x" , r") = " , r"f" , r"\left(-\frac{x}{3}\right)" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG3[1].set_color(INPUT_COLOR)
+        functionG3[4][2].set_color(INPUT_COLOR)
+        functionG3[3].set_color(OUTPUT_COLOR)
+
+        functionG4 = MathTex(r"g(" , r"x" , r") = " , r"f" , r"(ax)" , color=GREEN).scale(0.95).next_to(functionF , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2).align_to(functionF , LEFT)
+        functionG4[1].set_color(INPUT_COLOR)
+        functionG4[4][2].set_color(INPUT_COLOR)
+        functionG4[3].set_color(OUTPUT_COLOR)
+
+        aValueText = MathTex(r"a: " , color=GREEN).scale(0.8).next_to(functionG4 , DOWN).align_to(functionG4 , LEFT)
+
+        aValueSlider = Slider(
+            x=-1/3,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.03,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15
+            }
+        ).next_to(aValueText , RIGHT)
+
+
         curve = number_plane.plot(lambda x : x + 2 * cos(x) , [-10 , 10] , color=OUTPUT_COLOR , stroke_width = 3)
         rightCurveG = number_plane.plot(lambda x : (3*x) + 2 * cos(3 * x) , x_range=[1 , 10] , color=GREEN , stroke_width = 3)
-        curveG = number_plane.plot(lambda x : (3*x) + 2 * cos(3 * x) , x_range=[-10 , 10] , color=GREEN , stroke_width = 3)
+        
+        scaleValue = ValueTracker(1/3)
+        curveG = always_redraw(lambda : number_plane.plot(lambda x : (x) + 2 * cos(x) , x_range=[-10 , 10] , color=GREEN , stroke_width = 3).scale([scaleValue.get_value() , 1 , 1] , about_point = ORIGIN) )
 
         xValue = ValueTracker(1)
 
@@ -1501,11 +1534,87 @@ class Scene12(Scene):
         self.play(TransformFromCopy(linef , lineg) , TransformFromCopy(pointf , pointg))
         self.add(partialCurveg)
         self.wait()
-        self.play(xValue.animate.set_value(1.717) , run_time = 1.3)
+
+        self.play(Flash(exampleInputg.get_center() , line_length=0.18 , num_lines=11 , line_stroke_width=2 , time_width=0.45))
+        self.play(Flash(pointg.get_center() , line_length=0.18 , num_lines=11 , line_stroke_width=2 , time_width=0.45))
+
+        lineCopy = Line(exampleInputg.get_center() , pointg.get_center() , stroke_width = 4 , color=YELLOW)
+        self.play(ShowPassingFlash(lineCopy , time_width=0.35))
+
+        lineCopy = Line(exampleInputf.get_center() , pointf.get_center() , stroke_width = 4 , color=YELLOW)
+        self.play(ShowPassingFlash(lineCopy , time_width=0.35))
+
+        lineCopy = Line(ORIGIN , exampleInputf.get_center() , stroke_width = 4 , color=YELLOW)
+        self.play(ShowPassingFlash(lineCopy , time_width=0.35))
+
+        lineCopy = Line(ORIGIN , exampleInputg.get_center() , stroke_width = 4 , color=YELLOW)
+        self.play(ShowPassingFlash(lineCopy , time_width=0.35))
+        
+
+        self.play(xValue.animate.set_value(1.72) , run_time = 2)
         self.add(rightCurveG)
-        self.play(xValue.animate.set_value(-2.402) , run_time = 3 , rate_func = smootherstep)
+        self.play(xValue.animate.set_value(-2.41) , run_time = 4.5 , rate_func = smootherstep)
         self.add(curveG)
-        self.play(FadeOut(partialCurveg) , run_time = 0.1)
+        self.play(FadeOut(partialCurveg , rightCurveG) , run_time = 0.1)
         self.play(FadeOut(arrow , pointf , pointg , linef , lineg , exampleInputf , exampleInputg))
+
+        yintercept = Dot(number_plane.c2p(0 , 2) , radius=0.05 , color=YELLOW)
+        self.play(FadeIn(yintercept , run_time=1))
+
+        explainerEquation = MathTex(r"(" , r"0" , r",g(" , r"0" , r"))" , color=GREEN).scale(0.75).next_to(functionG , DOWN).align_to(functionG , LEFT)
+        explainerEquation[1].set_color(INPUT_COLOR)
+        explainerEquation[3].set_color(INPUT_COLOR)
+
+        explainerEquation2 = MathTex(r"(" , r"0" , r",f(" , r"3 \cdot 0" , r"))" , color=GREEN).scale(0.75).next_to(functionG , DOWN).align_to(functionG , LEFT)
+        explainerEquation2[1].set_color(INPUT_COLOR)
+        explainerEquation2[2][1].set_color(OUTPUT_COLOR)
+        explainerEquation2[3].set_color(INPUT_COLOR)
+
+        explainerEquation3 = MathTex(r"(" , r"0" , r",f(" , r"0" , r"))" , color=GREEN).scale(0.75).next_to(functionG , DOWN).align_to(functionG , LEFT)
+        explainerEquation3[1].set_color(INPUT_COLOR)
+        explainerEquation3[2][1].set_color(OUTPUT_COLOR)
+        explainerEquation3[3].set_color(INPUT_COLOR)
+
+
+        self.play(Write(explainerEquation))
+        self.play(Circumscribe(functionG , stroke_width=2))
+        self.play(
+            TransformMatchingShapes(explainerEquation[:2] , explainerEquation2[:2]),
+            TransformMatchingShapes(explainerEquation[2] , explainerEquation2[2]),
+            TransformMatchingShapes(explainerEquation[3] , explainerEquation2[3]),
+            TransformMatchingShapes(explainerEquation[4] , explainerEquation2[4]),
+        )
+        self.play(
+            TransformMatchingShapes(explainerEquation2[:2] , explainerEquation3[:2]),
+            TransformMatchingShapes(explainerEquation2[2] , explainerEquation3[2]),
+            ReplacementTransform(explainerEquation2[3] , explainerEquation3[3]),
+            TransformMatchingShapes(explainerEquation2[4] , explainerEquation3[4]),
+        )
+
+        self.play(FadeOut(yintercept , explainerEquation3))
+        self.play(
+            TransformMatchingShapes(functionG[:4] , functionG2[:4]),
+            TransformMatchingShapes(functionG[4:] , functionG2[4:]),
+        )
+        self.play(scaleValue.animate.set_value(3))
+      
+        self.play(
+            TransformMatchingShapes(functionG2[:4] , functionG3[:4]),
+            TransformMatchingShapes(functionG2[4:] , functionG3[4:]),
+        )
+
+        self.play(scaleValue.animate.set_value(-3))
+      
+        self.play(
+            TransformMatchingShapes(functionG3[:4] , functionG4[:4]),
+            TransformMatchingShapes(functionG3[4:] , functionG4[4:]),
+            Write(aValueText),
+            FadeIn(aValueSlider)
+        )
+
+        self.play(aValueSlider.animate.set_value(-1) , scaleValue.animate.set_value(-1))
+        self.wait(0.5)
+        self.play(aValueSlider.animate.set_value(2) , scaleValue.animate.set_value(1/2))
+        
 
         self.wait()
