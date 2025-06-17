@@ -1,7 +1,9 @@
 from manim import *
 from utilities import myScale , truncate_decimal , TransformMatchingFromCopy , FadeInAndOutDirectional , Slider , FadeOutAll , FadeOutAllExcept
 from icons import screenRectanlge , CheckMark
-from math import sin , cos , floor
+from math import sin , cos , floor , log
+from scipy.interpolate import interp1d
+from scipy.integrate import quad
 
 INPUT_COLOR = WHITE
 OUTPUT_COLOR = RED
@@ -1616,5 +1618,88 @@ class Scene12(Scene):
         self.wait(0.5)
         self.play(aValueSlider.animate.set_value(2) , scaleValue.animate.set_value(1/2))
         
+
+        self.wait()
+
+        self.play(FadeOutAllExcept(self , number_plane))
+        self.wait()
+
+
+class Scene13(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+
+        def function(x):
+            if(x==0):
+                return 0
+            
+            return (1.467 * x * log(abs(0.25894 * x))) * pow(2 , -0.37493 * x)
+
+        
+        # Fancy Stuff that I totally understand.
+        # And all this for what? Just to make the speed of the creation constant.
+        # I thought it would look better (It doesn't). 
+
+        # Step 1: Sample the curve
+        x_vals = np.linspace(-5, 10, 1000)
+        y_vals = np.array([function(x) for x in x_vals])
+
+        # Step 2: Compute arc length differentials
+        dx = np.gradient(x_vals)
+        dy = np.gradient(y_vals)
+        ds = np.sqrt(dx**2 + dy**2)
+        s_vals = np.concatenate(([0], np.cumsum(ds[:-1])))
+
+        # Step 3: Normalize s and build interpolators
+        s_normalized = s_vals / s_vals[-1]
+        interp_x = interp1d(s_normalized, x_vals)
+        interp_y = interp1d(s_normalized, y_vals)
+
+        # Step 4: Define the parametric function
+        def gamma(t):
+            return np.array([interp_x(t), interp_y(t), 0.0])
+
+        # Step 5: Plot the parametric curve
+        curve = number_plane.plot_parametric_curve(
+            gamma,
+            t_range=[0, 1],
+            color=OUTPUT_COLOR
+        )
+
+
+
+        functionF = MathTex(r"f(x)" , color = RED).scale(0.6).move_to(number_plane.c2p(8.5 , 1.5))
+        functionF[0][2].set_color(INPUT_COLOR)
+
+        functionG = MathTex(r"g(x) = af(bx + c) + d" , color=GREEN).scale(0.9).to_corner(UL , buff=0.25)
+        functionG[0][2].set_color(INPUT_COLOR)
+        functionG[0][9].set_color(INPUT_COLOR)
+        functionG[0][6].set_color(OUTPUT_COLOR)
+
+        self.add(number_plane)
+        self.wait(0.5)
+
+        self.play(Create(curve) , rate_func = linear , run_time = 1.5)
+        self.play(Write(functionF))
+
+        self.play(Write(functionG))
 
         self.wait()
