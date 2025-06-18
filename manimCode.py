@@ -1651,7 +1651,12 @@ class Scene13(Scene):
             if(x==0):
                 return 0
             
-            return (1.467 * x * log(abs(0.25894 * x))) * pow(2 , -0.37493 * x)
+            return (1.36 * x * log(abs(0.25894 * x))) * pow(2 , -0.37493 * x)
+        
+        aValue = ValueTracker(1)
+        bValue = ValueTracker(1)
+        cValue = ValueTracker(0)
+        dValue = ValueTracker(0)
 
         
         # Fancy Stuff that I totally understand.
@@ -1681,9 +1686,11 @@ class Scene13(Scene):
         curve = number_plane.plot_parametric_curve(
             gamma,
             t_range=[0, 1],
-            color=OUTPUT_COLOR
+            color=OUTPUT_COLOR,
+            stroke_width = 3
         )
 
+        curveG = always_redraw(lambda : number_plane.plot(lambda x : aValue.get_value() * function(bValue.get_value()*x + cValue.get_value()) + dValue.get_value() , [-10 , 10] , stroke_width = 3 , color= GREEN))
 
 
         functionF = MathTex(r"f(x)" , color = RED).scale(0.6).move_to(number_plane.c2p(8.5 , 1.5))
@@ -1694,6 +1701,67 @@ class Scene13(Scene):
         functionG[0][9].set_color(INPUT_COLOR)
         functionG[0][6].set_color(OUTPUT_COLOR)
 
+        aText = MathTex(r"a:" , color=GREEN).scale(0.7).next_to(functionG , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.5).align_to(functionG , LEFT)
+        bText = MathTex(r"b:" , color=GREEN).scale(0.7).next_to(aText , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.5).align_to(functionG , LEFT)
+        cText = MathTex(r"c:" , color=GREEN).scale(0.7).next_to(bText , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.5).align_to(functionG , LEFT)
+        dText = MathTex(r"d:" , color=GREEN).scale(0.7).next_to(cText , DOWN , buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 1.5).align_to(functionG , LEFT)
+
+        aSlider = Slider(
+            x=1,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.026,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.18
+            }
+        ).next_to(aText , RIGHT)
+
+        bSlider = Slider(
+            x=1,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.026,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.18
+            }
+        ).next_to(bText , RIGHT)
+
+        cSlider = Slider(
+            x=0,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.026,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.18
+            }
+        ).next_to(cText , RIGHT)
+
+        dSlider = Slider(
+            x=0,
+            length=3.5,
+            dot_config={
+                "color": BLUE,
+                "radius": 0.026,
+            },
+            line_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.18
+            }
+        ).next_to(dText , RIGHT)
+
         self.add(number_plane)
         self.wait(0.5)
 
@@ -1701,5 +1769,51 @@ class Scene13(Scene):
         self.play(Write(functionF))
 
         self.play(Write(functionG))
+
+        self.play(
+            Write(aText),
+            Write(bText),
+            Write(cText),
+            Write(dText),
+            FadeIn(aSlider),
+            FadeIn(bSlider),
+            FadeIn(cSlider),
+            FadeIn(dSlider)
+        )
+
+        self.play(VGroup(cText , cSlider , dText , dSlider).animate.to_corner(UR))
+
+        self.play(Create(curveG) , rate_func = linear , run_time = 2)
+
+        self.play(dSlider.animate.set_value(1) , dValue.animate.set_value(1) , run_time = 1.25)
+        self.play(dSlider.animate.set_value(2) , dValue.animate.set_value(2) , run_time = 1.25)
+
+        self.play(dSlider.animate.set_value(-2) , dValue.animate.set_value(-2) , run_time = 1.25)
+
+        self.play(dSlider.animate.set_value(0) , dValue.animate.set_value(0) , run_time = 1)
+
+        self.play(cSlider.animate.set_value(2) , cValue.animate.set_value(2) , run_time = 1)
+        self.play(cSlider.animate.set_value(-2) , cValue.animate.set_value(-2) , run_time = 1)
+        
+        self.play(dSlider.animate.set_value(-3) , dValue.animate.set_value(-3) , run_time = 1)
+
+        self.play(dSlider.animate.set_value(0) , dValue.animate.set_value(0) , cSlider.animate.set_value(0) , cValue.animate.set_value(0) , run_time = 1)
+        
+        self.play(aSlider.animate.set_value(2) , aValue.animate.set_value(2) , run_time = 1)
+        self.play(aSlider.animate.set_value(0.5) , aValue.animate.set_value(0.5) , run_time = 1)
+        
+        self.play(aSlider.animate.set_value(0) , aValue.animate.set_value(0) , run_time = 1)
+        self.play(aSlider.animate.set_value(-2) , aValue.animate.set_value(-2) , run_time = 1)
+        
+        self.play(aSlider.animate.set_value(1) , aValue.animate.set_value(1) , run_time = 1)
+        
+        self.play(bSlider.animate.set_value(2) , bValue.animate.set_value(2) , run_time = 1)
+        self.play(bSlider.animate.set_value(1/2) , bValue.animate.set_value(1/2) , run_time = 1)
+        
+        self.play(bSlider.animate.set_value(-2) , bValue.animate.set_value(-2) , run_time = 1)
+        self.play(bSlider.animate.set_value(1) , bValue.animate.set_value(1) , run_time = 1)
+
+        self.play(aSlider.animate.set_value(1.5) , bSlider.animate.set_value(2) , cSlider.animate.set_value(3) , dSlider.animate.set_value(-1))
+        
 
         self.wait()
