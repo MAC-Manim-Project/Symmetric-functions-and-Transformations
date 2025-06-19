@@ -1,7 +1,7 @@
 from manim import *
 from utilities import myScale , truncate_decimal , TransformMatchingFromCopy , FadeInAndOutDirectional , Slider , FadeOutAll , FadeOutAllExcept
 from icons import screenRectanlge , CheckMark
-from math import sin , cos , floor , log
+from math import sin , cos , floor , log , exp
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
 
@@ -1801,8 +1801,9 @@ class Scene13(Scene):
         
         self.play(aSlider.animate.set_value(2) , aValue.animate.set_value(2) , run_time = 1)
         self.play(aSlider.animate.set_value(0.5) , aValue.animate.set_value(0.5) , run_time = 1)
-        
+ 
         self.play(aSlider.animate.set_value(0) , aValue.animate.set_value(0) , run_time = 1)
+        self.wait(0.5)
         self.play(aSlider.animate.set_value(-2) , aValue.animate.set_value(-2) , run_time = 1)
         
         self.play(aSlider.animate.set_value(1) , aValue.animate.set_value(1) , run_time = 1)
@@ -1871,7 +1872,57 @@ class Scene13(Scene):
         self.play(dValue.animate.set_value(-1))
 
         self.wait()
-
         self.play(FadeOutAllExcept(self , number_plane))
+        self.wait()
+
+
+class Scene14(Scene):
+    def construct(self):
+        number_plane = NumberPlane(
+            x_range=[-10, 10, 1],        
+            y_range=[-6, 6, 1],        
+            x_length = config.frame_width,
+            y_length = config.frame_height,
+
+            background_line_style={
+                "stroke_color": BLUE,
+                "stroke_width": 1,
+            },
+            axis_config={
+                "include_numbers": True,
+                "font_size": 15,
+                "line_to_number_buff" : 0.07,
+                "stroke_color": WHITE,
+            },
+            tips=False
+        )
+        number_plane.set_stroke(opacity=0.35)
+
+        functionF = MathTex(r"f(x) = e^x" , color=RED).scale(0.95).to_corner(UL)
+        functionF[0][2].set_color(INPUT_COLOR)
+        functionF[0][6].set_color(INPUT_COLOR)
+
+        functionG = MathTex(r"g(x) = \frac{1}{e^{2x+1}}-1" , color=GREEN).scale(0.95).next_to(functionF , DOWN).align_to(functionF , LEFT)
+        functionG[0][2].set_color(INPUT_COLOR)
+        functionG[0][9].set_color(INPUT_COLOR)
+
+        curve = number_plane.plot(lambda x : exp(x) , [-10 , 1.8] , stroke_width = 3 , color = OUTPUT_COLOR)
+
+
+
+        self.add(number_plane)
+        self.wait(0.5)
+
+        self.play(Write(functionF[0][:4]))
+        self.play(Write(functionF[0][4:]))
+        self.play(Create(curve))
+
+        self.play(Write(functionG))
+
+        self.play(functionF[0][2].animate.scale(1.2).set_color(YELLOW) , run_time = 0.5)
+        self.play(functionF[0][5].animate.scale(1.2).set_color(YELLOW) , run_time = 0.5)
+        self.play(functionF[0][6].animate.scale(1.2).set_color(YELLOW) , run_time = 0.5)
+
+        self.play(Circumscribe(functionG[0][7:12] , Rectangle , stroke_width=2))
 
         self.wait()
