@@ -1817,3 +1817,61 @@ class Scene13(Scene):
         
 
         self.wait()
+
+        def demoFunction(x):
+            return (-4*x)/((x ** 2) + 1)
+
+        parabola = number_plane.plot(demoFunction , [-10 , 10] , color=BLUE , stroke_width = 3)
+        parabola2 = number_plane.plot(demoFunction , [-10 , 10] , color=RED , stroke_width = 3)
+
+
+        self.play(FadeOutAllExcept(self , number_plane) , FadeIn(parabola , parabola2) , run_time = 0.8)
+
+        self.play(parabola.animate.scale([1,2,1] , about_point = ORIGIN))
+        self.play(parabola.animate.shift(number_plane.c2p(0,2)))
+
+        self.play(parabola2.animate.shift(number_plane.c2p(0,2)))
+        self.play(parabola2.animate.scale([1,2,1] , about_point = ORIGIN))
+        
+        self.play(FadeOutAllExcept(self , number_plane) , FadeIn(curve , curveG , functionG , functionF , aSlider , aText , bSlider , bText , cSlider , cText , dSlider , dText) , run_time = 0.8)
+
+        self.play(Circumscribe(functionG[0][2] , Circle , fade_out=True , stroke_width=2) , Circumscribe(functionG[0][9] , Circle , fade_out=True , stroke_width=2))
+        self.play(Indicate(functionG[0][8]))
+        self.play(Indicate(functionG[0][11]))
+        self.play(Indicate(functionG[0][5]))
+        self.play(Indicate(functionG[0][14]))
+
+        self.wait(0.5)
+        self.play(Indicate(functionG[0][11]))
+        self.play(Indicate(functionG[0][8]))
+        self.play(Indicate(functionG[0][5]))
+        self.play(Indicate(functionG[0][14]))
+
+        self.play(cValue.animate.set_value(3))
+        self.play(Circumscribe(cSlider.dot , Circle , stroke_width = 2.5))
+
+        tip = ComplexValueTracker(1-1.4j)
+        base = ComplexValueTracker(2-3j)
+
+        arrow = always_redraw(lambda : Arrow(number_plane.c2p(base.points) , number_plane.c2p(tip.points) , color=BLUE , buff=SMALL_BUFF , max_tip_length_to_length_ratio=0.15 , max_stroke_width_to_length_ratio=3.5) )
+
+        self.play(GrowArrow(arrow))
+
+        self.play(tip.animate.set_value(-2-1.4j) , base.animate.set_value(-3-3j))
+        self.play(tip.animate.set_value(-2+3j) , base.animate.set_value(4j))
+        self.play(tip.animate.set_value(-5+3j) , base.animate.set_value(-3+4j))
+        self.play(tip.animate.set_value(0) , base.animate.set_value(-1.5+1.2j))
+        self.play(tip.animate.set_value(-3))
+
+        self.play(FadeOut(arrow , scale = 0))
+
+        self.play(bValue.animate.set_value(2))
+
+        self.play(aValue.animate.set_value(1.5))
+        self.play(dValue.animate.set_value(-1))
+
+        self.wait()
+
+        self.play(FadeOutAllExcept(self , number_plane))
+
+        self.wait()
