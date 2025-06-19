@@ -1906,6 +1906,15 @@ class Scene14(Scene):
         functionG[0][2].set_color(INPUT_COLOR)
         functionG[0][9].set_color(INPUT_COLOR)
 
+        functionG2 = MathTex(r"= \frac{1}{f(2x+1)}-1" , color=GREEN).scale(0.8).next_to(functionG , DOWN).align_to(functionG[0][4] , LEFT)
+        functionG2[0][6].set_color(INPUT_COLOR)
+        functionG2[0][8].set_color(OUTPUT_COLOR)
+
+        standardForm = MathTex(r"g(x) = af(bx+c) + d" , color=GREEN).scale(0.85).shift(DOWN).to_edge(LEFT)
+        standardForm[0][2].set_color(INPUT_COLOR)
+        standardForm[0][9].set_color(INPUT_COLOR)
+        standardForm[0][6].set_color(OUTPUT_COLOR)
+
         curve = number_plane.plot(lambda x : exp(x) , [-10 , 1.8] , stroke_width = 3 , color = OUTPUT_COLOR)
 
 
@@ -1923,6 +1932,28 @@ class Scene14(Scene):
         self.play(functionF[0][5].animate.scale(1.2).set_color(YELLOW) , run_time = 0.5)
         self.play(functionF[0][6].animate.scale(1.2).set_color(YELLOW) , run_time = 0.5)
 
+        self.play(
+            functionF[0][2].animate.scale(1/1.2).set_color(INPUT_COLOR),
+            functionF[0][5].animate.scale(1/1.2).set_color(OUTPUT_COLOR),
+            functionF[0][6].animate.scale(1/1.2).set_color(INPUT_COLOR),
+            run_time = 0.5
+        )
+
         self.play(Circumscribe(functionG[0][7:12] , Rectangle , stroke_width=2))
+
+        animations = [
+            TransformMatchingFromCopy(functionG[0][4] , functionG2[0][0]),
+            TransformMatchingFromCopy(functionG[0][5] , functionG2[0][1]),
+            TransformMatchingFromCopy(functionG[0][6] , functionG2[0][2]),
+        ]
+        self.play(AnimationGroup(*animations , lag_ratio=0.25))
+        self.play(TransformMatchingFromCopy(functionG[0][7:12] , functionG2[0][3:10]))
+        self.play(TransformMatchingFromCopy(functionG[0][-2:] , functionG2[0][-2:]))
+
+        self.play(Write(standardForm))
+
+        self.play(Circumscribe(functionG2 , Rectangle , stroke_width=2))
+
+        # self.play()
 
         self.wait()
