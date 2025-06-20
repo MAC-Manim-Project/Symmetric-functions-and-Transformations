@@ -1902,13 +1902,24 @@ class Scene14(Scene):
         functionF[0][2].set_color(INPUT_COLOR)
         functionF[0][6].set_color(INPUT_COLOR)
 
-        functionG = MathTex(r"g(x) = \frac{1}{e^{2x+1}}-1" , color=GREEN).scale(0.95).next_to(functionF , DOWN).align_to(functionF , LEFT)
+        functionG = MathTex(r"g(x) = \frac{1}{e^{2x-1}}-2" , color=GREEN).scale(0.95).next_to(functionF , DOWN).align_to(functionF , LEFT)
         functionG[0][2].set_color(INPUT_COLOR)
         functionG[0][9].set_color(INPUT_COLOR)
 
-        functionG2 = MathTex(r"= \frac{1}{f(2x+1)}-1" , color=GREEN).scale(0.8).next_to(functionG , DOWN).align_to(functionG[0][4] , LEFT)
+        functionG2 = MathTex(r"= \frac{1}{f(2x-1)}-2" , color=GREEN).scale(0.8).next_to(functionG , DOWN).align_to(functionG[0][4] , LEFT)
         functionG2[0][6].set_color(INPUT_COLOR)
         functionG2[0][8].set_color(OUTPUT_COLOR)
+
+        functionG3 = MathTex(r"=e^{-(2x-1)}-2" , color=GREEN).scale(0.85).next_to(functionG , DOWN).align_to(functionG[0][4] , LEFT)
+        functionG3[0][5].set_color(INPUT_COLOR)
+
+        functionG4 = MathTex(r"=f(-(2x-1))-2" , color=GREEN).scale(0.85).next_to(functionG3 , DOWN).align_to(functionG[0][4] , LEFT)
+        functionG4[0][6].set_color(INPUT_COLOR)
+        functionG4[0][1].set_color(OUTPUT_COLOR)
+
+        functionG5 = MathTex(r"=f(-2x+1)-2" , color=GREEN).scale(0.85).next_to(functionG3 , DOWN).align_to(functionG[0][4] , LEFT)
+        functionG5[0][5].set_color(INPUT_COLOR)
+        functionG5[0][1].set_color(OUTPUT_COLOR)
 
         standardForm = MathTex(r"g(x) = af(bx+c) + d" , color=GREEN).scale(0.85).shift(DOWN).to_edge(LEFT)
         standardForm[0][2].set_color(INPUT_COLOR)
@@ -1916,7 +1927,42 @@ class Scene14(Scene):
         standardForm[0][6].set_color(OUTPUT_COLOR)
 
         curve = number_plane.plot(lambda x : exp(x) , [-10 , 1.8] , stroke_width = 3 , color = OUTPUT_COLOR)
+        
+        aValue = ValueTracker(1)
+        bValue = ValueTracker(1)
+        cValue = ValueTracker(0)
+        dValue = ValueTracker(0)
+        curve2Color = ValueTracker(0)
 
+        def myexp(x):
+            try:
+                # Limit x within a safe range to avoid overflow/underflow
+                return np.exp(np.clip(x, -30, 30))
+            except:
+                return 0  # Just in case something slips through
+
+        def function(x):
+            if x == 0:
+                return 0
+            return aValue.get_value() * myexp(bValue.get_value() * x + cValue.get_value()) + dValue.get_value()
+
+
+        def compute_visible_x_range(y_bounds=(-7, 7), x_span=(-10, 10), steps=1000):
+            x_vals = np.linspace(x_span[0], x_span[1], steps)
+            with np.errstate(over='ignore', under='ignore', invalid='ignore'):
+                y_vals = aValue.get_value() * myexp(bValue.get_value() * x_vals + cValue.get_value()) + dValue.get_value()
+            mask = (y_vals >= y_bounds[0]) & (y_vals <= y_bounds[1])
+            if not np.any(mask):
+                return [-0.1, 0.1]  # fallback minimal range
+            return [x_vals[mask].min(), x_vals[mask].max()]
+
+        curve2 = always_redraw(
+            lambda: number_plane.plot(
+                function,
+                x_range=compute_visible_x_range(),
+                color=interpolate_color(RED, GREEN, curve2Color.get_value())
+            )
+        )
 
 
         self.add(number_plane)
@@ -1925,6 +1971,7 @@ class Scene14(Scene):
         self.play(Write(functionF[0][:4]))
         self.play(Write(functionF[0][4:]))
         self.play(Create(curve))
+        self.add(curve2)
 
         self.play(Write(functionG))
 
@@ -1954,6 +2001,43 @@ class Scene14(Scene):
 
         self.play(Circumscribe(functionG2 , Rectangle , stroke_width=2))
 
-        # self.play()
+        self.play(Unwrite(functionG2))
+
+        self.play(Write(functionG3[0][:9]))
+        self.play(TransformMatchingFromCopy(functionG[0][-2:] , functionG3[0][-2:]))
+
+        self.play(
+            TransformMatchingFromCopy(functionG3[0][0] , functionG4[0][0]),
+            TransformFromCopy(functionG3[0][1] , functionG4[0][1]),
+            TransformMatchingFromCopy(functionG3[0][2:9] , functionG4[0][2:11]),
+            TransformMatchingFromCopy(functionG3[0][-2:] , functionG4[0][-2:])
+        )
+
+        self.play(Circumscribe(standardForm , Rectangle , stroke_width=2))
+
+        self.play(
+            TransformMatchingShapes(functionG4[0][0] , functionG5[0][0]),
+            TransformMatchingShapes(functionG4[0][1] , functionG5[0][1]),
+            TransformMatchingShapes(functionG4[0][2] , functionG5[0][2]),
+            TransformMatchingFromCopy(functionG4[0][3] , functionG5[0][3]),
+            FadeOut(functionG4[0][4]),
+            TransformMatchingShapes(functionG4[0][5] , functionG5[0][4]),
+            TransformMatchingShapes(functionG4[0][6] , functionG5[0][5]),
+            ReplacementTransform(VGroup(functionG4[0][7] , functionG4[0][3]) , functionG5[0][6]),
+            TransformMatchingShapes(functionG4[0][8] , functionG5[0][7]),
+            FadeOut(functionG4[0][9]),
+            TransformMatchingShapes(functionG4[0][10] , functionG5[0][8]),
+            TransformMatchingShapes(functionG4[0][11] , functionG5[0][9]),
+            TransformMatchingShapes(functionG4[0][12] , functionG5[0][10])
+        )
+
+        self.play(functionG5.animate.align_to(functionG3 , UP) , FadeOut(functionG3))
+
+        self.play(Circumscribe(standardForm[0][5:] , stroke_width=2) , Circumscribe(functionG5[0][1:] , stroke_width=2))
+
+        self.play(cValue.animate.set_value(1) , curve2Color.animate.set_value(1))
+        self.play(bValue.animate.set_value(-1))
+        self.play(bValue.animate.set_value(-2))
+        self.play(dValue.animate.set_value(-2))
 
         self.wait()
