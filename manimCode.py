@@ -124,6 +124,11 @@ class Scene1(MovingCameraScene):
 
         self.wait(0.5)
 
+        tempRightCurve = number_plane.plot(function , [0 , 2.5] , stroke_width = 3 , color=YELLOW)
+        tempLeftCurve = number_plane.plot(function , [-2.5 , 0] , stroke_width = 3 , color=YELLOW).reverse_points()
+        self.play(ShowPassingFlash(tempRightCurve) , ShowPassingFlash(tempLeftCurve))
+        self.wait(0.5)
+
         title_texts.shift(DOWN * config.frame_height)
         self.add(screenRectanlge(1).shift(DOWN * config.frame_height))
         self.add(title_texts)
@@ -477,7 +482,9 @@ class Scene4(Scene):
         self.play(curve4.animate.scale([-1,1,1]))
 
         self.play(FadeOut(ghostCurve4) , run_time = 0.1)
-        self.play(TransformMatchingTex(functionText4 , functionText5) , ReplacementTransform(curve4 , curve5) , FadeOut(check , cross2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.play(TransformMatchingTex(functionText4 , functionText5) , curve4.animate.scale([1.4 , 0 , 1]) , FadeOut(check , cross2) , cornerText1.animate.set_color(WHITE) , cornerText2.animate.set_color(WHITE))
+        self.add(curve5)
+        self.play(FadeOut(curve4) , run_time = 0.1)
         self.add(ghostCurve5)
         self.play(cornerText1.animate.set_color(YELLOW))
         self.play(Rotate(curve5 , PI , about_point=ORIGIN))
@@ -2005,6 +2012,21 @@ class Scene14(Scene):
 
         self.play(Write(functionG3[0][:9]))
         self.play(TransformMatchingFromCopy(functionG[0][-2:] , functionG3[0][-2:]))
+
+
+        lawOfExponent = MathTex(r"\frac{1}{a^b} = a^{-b}" , color = BLUE).move_to(number_plane.c2p(5.5 , 2.5))
+        lawOfExponent.add_background_rectangle()
+        lawOfExponent[1][2].set_color(RED)
+        lawOfExponent[1][5].set_color(RED)
+        lawOfExponent[1][3].set_color(YELLOW)
+        lawOfExponent[1][-1].set_color(YELLOW)
+
+        self.play(Write(lawOfExponent) , run_time = 2)
+
+        self.wait(0.5)
+
+        self.play(FadeOut(lawOfExponent))
+
 
         self.play(
             TransformMatchingFromCopy(functionG3[0][0] , functionG4[0][0]),
